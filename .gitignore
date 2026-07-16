@@ -4,5 +4,6 @@ obj
 node_modules
 build
 .env
+.vscode
 wwwroot
 .DS_Store
