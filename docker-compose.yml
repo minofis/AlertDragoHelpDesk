@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  postgresDb:
+    container_name: DragoDeskHelpDb
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_DB: DragoDeskHelpDb
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+      PGDATA: /var/lib/postgresql/18/main 
+    volumes:
+      - postgresql_data:/var/lib/postgresql 
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U root -d DragoDeskHelpDb"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  api:
+    build:
+      context: ./backend/DragoDeskHelp
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    environment:
+      - ASPNETCORE_URLS=http://+:5001
+      - ConnectionStrings__ApplicationDbContext=Host=postgresDb;Port=5432;Database=DragoDeskHelpDb;Username=root;Password=root
+    depends_on:
+      postgresDb:
+        condition: service_healthy
+
+  frontend:
+    image: nginx:alpine
+    container_name: DragoDeskHelpFrontend
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - api
+
+  bot:
+    build:
+      context: ./bot
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - BOT_TOKEN=8575057345:AAHElhAGuQ7q9k4_SkeHloRMRG6_3dzbuAY
+      - API_BASE_URL=http://api:5001
+      - ALLOWED_TELEGRAM_IDS=568312173,852755803
+    depends_on:
+      - api
+
+volumes:
+  postgresql_data:
