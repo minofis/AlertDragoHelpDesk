@@ -13,6 +13,10 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
+    if (!roomNumber.trim() || !description.trim()) {
+      return
+    }
+
     const ticketData = {
       roomNumber: roomNumber,
       authorName: 'Unknown',
