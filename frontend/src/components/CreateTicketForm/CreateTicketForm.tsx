@@ -8,7 +8,8 @@ interface CreateTicketFormProps {
 const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
   const [roomNumber, setRoomNumber] = useState('')
   const [description, setDescription] = useState('')
-  const [showToast, setShowToast] = useState(false)
+  const [showSuccessToast, setShowSuccessToast] = useState(false)
+  const [showErrorToast, setShowErrorToast] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -34,14 +35,17 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
       if (response.ok) {
         setRoomNumber('')
         setDescription('')
-        setShowToast(true)
-        setTimeout(() => setShowToast(false), 3000)
+        setShowSuccessToast(true)
+        setTimeout(() => setShowSuccessToast(false), 3000)
         onSuccess()
         console.log('Ticket created successfully', await response.json())
       } else {
         console.error('Failed to create ticket', response.status)
+        throw new Error(`Server error: ${response.status}`)
       }
     } catch (error) {
+      setShowErrorToast(true)
+      setTimeout(() => setShowErrorToast(false), 3000)
       console.error('Error sending request:', error)
     }
   }
@@ -78,8 +82,11 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
           Create
         </button>
       </form>
-      {showToast && (
-        <div className={styles.toast}>Ticket successfully sent!</div>
+      {showSuccessToast && (
+        <div className={`${styles.toastBase} ${styles.toastSuccess}`}>Ticket successfully sent!</div>
+      )}
+      {showErrorToast && (
+        <div className={`${styles.toastBase} ${styles.toastError}`}>Failed to create ticket. Please try again.</div>
       )}
     </div>
   )
