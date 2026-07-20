@@ -1,7 +1,11 @@
 import React, { useState } from 'react'
 import styles from './CreateTicketForm.module.css'
 
-const CreateTicketForm: React.FC = () => {
+interface CreateTicketFormProps {
+  onSuccess: () => void
+}
+
+const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
   const [roomNumber, setRoomNumber] = useState('')
   const [description, setDescription] = useState('')
   const [showToast, setShowToast] = useState(false)
@@ -28,6 +32,7 @@ const CreateTicketForm: React.FC = () => {
         setDescription('')
         setShowToast(true)
         setTimeout(() => setShowToast(false), 3000)
+        onSuccess()
         console.log('Ticket created successfully', await response.json())
       } else {
         console.error('Failed to create ticket', response.status)

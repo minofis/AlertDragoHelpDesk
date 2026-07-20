@@ -1,7 +1,11 @@
 import React, { useState, useEffect } from 'react'
 import styles from './TicketsTable.module.css'
 
-const TicketsTable: React.FC = () => {
+interface TicketsTableProps {
+  refreshKey: number
+}
+
+const TicketsTable: React.FC<TicketsTableProps> = ({ refreshKey }) => {
 
   const [tickets, setTickets] = useState<Ticket[]>([])
 
@@ -18,7 +22,7 @@ const TicketsTable: React.FC = () => {
     }
 
     fetchTickets()
-  }, [])
+  }, [refreshKey])
 
   return (
 <table className={styles.table}>
