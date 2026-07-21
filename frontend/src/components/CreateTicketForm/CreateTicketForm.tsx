@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react'
 import styles from './CreateTicketForm.module.css'
 
+const VALID_ROOMS = ['101', '102', '103', '201', '202']
+
 interface CreateTicketFormProps {
   onSuccess: () => void
 }
@@ -102,6 +104,7 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
               type="text"
               inputMode="numeric"
               pattern="[0-9]*"
+              list="room-options"
               value={roomNumber}
               onChange={(e) => {
                 setRoomNumber(e.target.value)
@@ -110,6 +113,11 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
             />
             {validationErrors.roomNumber && <span className={styles.errorText}>Required field</span>}
           </div>
+          <datalist id="room-options">
+            {VALID_ROOMS.map((room) => (
+              <option key={room} value={room} />
+            ))}
+          </datalist>
         </div>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="description">
