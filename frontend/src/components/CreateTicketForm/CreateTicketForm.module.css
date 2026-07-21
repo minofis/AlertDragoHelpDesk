@@ -46,6 +46,7 @@
   border-radius: 8px;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   z-index: 1000;
+  animation: slideInDown 0.3s ease-out forwards;
 }
 
 .toastSuccess {
@@ -54,4 +55,15 @@
 
 .toastError {
   background: #f44336;
+}
+
+@keyframes slideInDown {
+  from {
+    transform: translateY(-20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 }
