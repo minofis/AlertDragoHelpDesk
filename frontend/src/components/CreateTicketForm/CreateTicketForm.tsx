@@ -13,7 +13,7 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [showErrorToast, setShowErrorToast] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
-  const [validationErrors, setValidationErrors] = useState<{roomNumber?: boolean, description?: boolean}>({})
+  const [validationErrors, setValidationErrors] = useState<{roomNumber?: string, description?: string}>({})
   const [isExiting, setIsExiting] = useState(false)
   const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
@@ -43,10 +43,14 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    if (!roomNumber.trim() || !description.trim()) {
+    const roomEmpty = !roomNumber.trim()
+    const descEmpty = !description.trim()
+    const roomInvalid = !roomEmpty && !VALID_ROOMS.includes(roomNumber.trim())
+
+    if (roomEmpty || descEmpty || roomInvalid) {
       setValidationErrors({
-        roomNumber: !roomNumber.trim() || undefined,
-        description: !description.trim() || undefined,
+        roomNumber: roomEmpty ? 'Required field' : roomInvalid ? 'Please select a valid room from the list' : undefined,
+        description: descEmpty ? 'Required field' : undefined,
       })
       return
     }
@@ -108,10 +112,10 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
               value={roomNumber}
               onChange={(e) => {
                 setRoomNumber(e.target.value)
-                setValidationErrors((prev) => ({ ...prev, roomNumber: false }))
+                setValidationErrors((prev) => ({ ...prev, roomNumber: undefined }))
               }}
             />
-            {validationErrors.roomNumber && <span className={styles.errorText}>Required field</span>}
+            {validationErrors.roomNumber && <span className={styles.errorText}>{validationErrors.roomNumber}</span>}
           </div>
           <datalist id="room-options">
             {VALID_ROOMS.map((room) => (
@@ -131,10 +135,10 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
               value={description}
               onChange={(e) => {
                 setDescription(e.target.value)
-                setValidationErrors((prev) => ({ ...prev, description: false }))
+                setValidationErrors((prev) => ({ ...prev, description: undefined }))
               }}
             />
-            {validationErrors.description && <span className={styles.errorText}>Required field</span>}
+            {validationErrors.description && <span className={styles.errorText}>{validationErrors.description}</span>}
           </div>
         </div>
         <button className={styles.submitButton} type="submit" disabled={isLoading}>
