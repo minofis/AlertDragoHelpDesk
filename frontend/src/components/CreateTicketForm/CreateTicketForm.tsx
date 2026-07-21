@@ -11,13 +11,20 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [showErrorToast, setShowErrorToast] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [validationErrors, setValidationErrors] = useState<{roomNumber?: boolean, description?: boolean}>({})
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
     if (!roomNumber.trim() || !description.trim()) {
+      setValidationErrors({
+        roomNumber: !roomNumber.trim() || undefined,
+        description: !description.trim() || undefined,
+      })
       return
     }
+
+    setValidationErrors({})
 
     const ticketData = {
       roomNumber: roomNumber,
@@ -64,24 +71,32 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
             Room number
           </label>
           <input
-            className={styles.input}
+            className={`${styles.input} ${validationErrors.roomNumber ? styles.inputError : ''}`}
             id="roomNumber"
             type="text"
             value={roomNumber}
-            onChange={(e) => setRoomNumber(e.target.value)}
+            onChange={(e) => {
+              setRoomNumber(e.target.value)
+              setValidationErrors((prev) => ({ ...prev, roomNumber: false }))
+            }}
           />
+          {validationErrors.roomNumber && <span className={styles.errorText}>Required field</span>}
         </div>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="description">
             Description
           </label>
           <input
-            className={styles.input}
+            className={`${styles.input} ${validationErrors.description ? styles.inputError : ''}`}
             id="description"
             type="text"
             value={description}
-            onChange={(e) => setDescription(e.target.value)}
+            onChange={(e) => {
+              setDescription(e.target.value)
+              setValidationErrors((prev) => ({ ...prev, description: false }))
+            }}
           />
+          {validationErrors.description && <span className={styles.errorText}>Required field</span>}
         </div>
         <button className={styles.submitButton} type="submit" disabled={isLoading}>
           {isLoading ? 'Creating...' : 'Create'}
