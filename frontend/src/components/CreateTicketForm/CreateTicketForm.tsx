@@ -70,35 +70,39 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
           <label className={styles.label} htmlFor="roomNumber">
             Room number
           </label>
-          <input
-            className={`${styles.input} ${validationErrors.roomNumber ? styles.inputError : ''}`}
-            id="roomNumber"
-            type="text"
-            inputMode="numeric"
-            pattern="[0-9]*"
-            value={roomNumber}
-            onChange={(e) => {
-              setRoomNumber(e.target.value)
-              setValidationErrors((prev) => ({ ...prev, roomNumber: false }))
-            }}
-          />
-          {validationErrors.roomNumber && <span className={styles.errorText}>Required field</span>}
+          <div className={styles.fieldWrapper}>
+            <input
+              className={`${styles.input} ${validationErrors.roomNumber ? styles.inputError : ''}`}
+              id="roomNumber"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={roomNumber}
+              onChange={(e) => {
+                setRoomNumber(e.target.value)
+                setValidationErrors((prev) => ({ ...prev, roomNumber: false }))
+              }}
+            />
+            {validationErrors.roomNumber && <span className={styles.errorText}>Required field</span>}
+          </div>
         </div>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="description">
             Description
           </label>
-          <input
-            className={`${styles.input} ${validationErrors.description ? styles.inputError : ''}`}
-            id="description"
-            type="text"
-            value={description}
-            onChange={(e) => {
-              setDescription(e.target.value)
-              setValidationErrors((prev) => ({ ...prev, description: false }))
-            }}
-          />
-          {validationErrors.description && <span className={styles.errorText}>Required field</span>}
+          <div className={styles.fieldWrapper}>
+            <input
+              className={`${styles.input} ${validationErrors.description ? styles.inputError : ''}`}
+              id="description"
+              type="text"
+              value={description}
+              onChange={(e) => {
+                setDescription(e.target.value)
+                setValidationErrors((prev) => ({ ...prev, description: false }))
+              }}
+            />
+            {validationErrors.description && <span className={styles.errorText}>Required field</span>}
+          </div>
         </div>
         <button className={styles.submitButton} type="submit" disabled={isLoading}>
           {isLoading ? 'Creating...' : 'Create'}
