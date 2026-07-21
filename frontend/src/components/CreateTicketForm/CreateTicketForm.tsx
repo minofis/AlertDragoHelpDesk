@@ -10,6 +10,7 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
   const [description, setDescription] = useState('')
   const [showSuccessToast, setShowSuccessToast] = useState(false)
   const [showErrorToast, setShowErrorToast] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -23,6 +24,8 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
       authorName: 'Unknown',
       description: description,
     }
+
+    setIsLoading(true)
 
     try {
       const response = await fetch('http://localhost:5220/api/tickets', {
@@ -47,6 +50,8 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
       setShowErrorToast(true)
       setTimeout(() => setShowErrorToast(false), 3000)
       console.error('Error sending request:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -78,8 +83,8 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
             onChange={(e) => setDescription(e.target.value)}
           />
         </div>
-        <button className={styles.submitButton} type="submit">
-          Create
+        <button className={styles.submitButton} type="submit" disabled={isLoading}>
+          {isLoading ? 'Creating...' : 'Create'}
         </button>
       </form>
       {showSuccessToast && (
