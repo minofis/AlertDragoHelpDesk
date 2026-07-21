@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import styles from './CreateTicketForm.module.css'
 
 interface CreateTicketFormProps {
@@ -12,6 +12,31 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
   const [showErrorToast, setShowErrorToast] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [validationErrors, setValidationErrors] = useState<{roomNumber?: boolean, description?: boolean}>({})
+  const [isExiting, setIsExiting] = useState(false)
+  const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  useEffect(() => {
+    if (isExiting) {
+      exitTimerRef.current = setTimeout(() => {
+        setShowSuccessToast(false)
+        setShowErrorToast(false)
+        setIsExiting(false)
+      }, 300)
+      return () => {
+        if (exitTimerRef.current) {
+          clearTimeout(exitTimerRef.current)
+        }
+      }
+    }
+  }, [isExiting])
+
+  useEffect(() => {
+    return () => {
+      if (exitTimerRef.current) {
+        clearTimeout(exitTimerRef.current)
+      }
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -46,7 +71,7 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
         setRoomNumber('')
         setDescription('')
         setShowSuccessToast(true)
-        setTimeout(() => setShowSuccessToast(false), 3000)
+        setTimeout(() => setIsExiting(true), 3000)
         onSuccess()
         console.log('Ticket created successfully', await response.json())
       } else {
@@ -55,7 +80,7 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
       }
     } catch (error) {
       setShowErrorToast(true)
-      setTimeout(() => setShowErrorToast(false), 3000)
+      setTimeout(() => setIsExiting(true), 3000)
       console.error('Error sending request:', error)
     } finally {
       setIsLoading(false)
@@ -109,10 +134,10 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
         </button>
       </form>
       {showSuccessToast && (
-        <div className={`${styles.toastBase} ${styles.toastSuccess}`}>Ticket successfully sent!</div>
+        <div className={`${styles.toastBase} ${styles.toastSuccess} ${isExiting ? styles.toastExit : ''}`}>Ticket successfully sent!</div>
       )}
       {showErrorToast && (
-        <div className={`${styles.toastBase} ${styles.toastError}`}>Failed to create ticket. Please try again.</div>
+        <div className={`${styles.toastBase} ${styles.toastError} ${isExiting ? styles.toastExit : ''}`}>Failed to create ticket. Please try again.</div>
       )}
     </div>
   )

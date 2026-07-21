@@ -73,3 +73,16 @@
     opacity: 1;
   }
 }
+
+@keyframes slideOutUp {
+  from {
+    transform: translateY(0);
+  }
+  to {
+    transform: translateY(-100%);
+  }
+}
+
+.toastExit {
+  animation: slideOutUp 0.3s ease-in forwards;
+}
