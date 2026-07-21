@@ -74,6 +74,8 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
             className={`${styles.input} ${validationErrors.roomNumber ? styles.inputError : ''}`}
             id="roomNumber"
             type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
             value={roomNumber}
             onChange={(e) => {
               setRoomNumber(e.target.value)
