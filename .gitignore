@@ -6,3 +6,4 @@ build
 .env
 wwwroot
 .DS_Store
+.vscode/
