@@ -8,6 +8,7 @@ interface TicketsTableProps {
 const TicketsTable: React.FC<TicketsTableProps> = ({ refreshKey }) => {
 
   const [tickets, setTickets] = useState<Ticket[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchTickets = async () => {
@@ -18,6 +19,8 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ refreshKey }) => {
         console.log('Received tickets:', data)
       } catch (error) {
         console.error('Error fetching tickets:', error)
+      } finally {
+        setIsLoading(false)
       }
     }
 
@@ -25,30 +28,38 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ refreshKey }) => {
   }, [refreshKey])
 
   return (
-<table className={styles.table}>
-  <thead>
-    <tr>
-      <th className={styles.headerCell}>ID</th>
-      <th className={styles.headerCell}>Room number</th>
-      <th className={styles.headerCell}>Author</th>
-      <th className={styles.headerCell}>Description</th>
-      <th className={styles.headerCell}>Date</th>
-      <th className={styles.headerCell}>Status</th>
-    </tr>
-  </thead>
-  <tbody>
-    {tickets.map((ticket) => (
-      <tr key={ticket.id}>
-        <td className={styles.cell}>{ticket.id}</td>
-        <td className={styles.cell}>{ticket.roomNumber}</td>
-        <td className={styles.cell}>{ticket.authorName}</td>
-        <td className={styles.cell}>{ticket.description}</td>
-        <td className={styles.cell}>{ticket.createdAt}</td>
-        <td className={styles.cell}>{ticket.statusText}</td>
-      </tr>
-    ))}
-  </tbody>
-</table>
+    <div className={styles.wrapper}>
+      <table className={styles.table}>
+        <thead className={styles.thead}>
+          <tr>
+            <th className={`${styles.headerCell} ${styles.colId}`}>ID</th>
+            <th className={`${styles.headerCell} ${styles.colRoom}`}>Room number</th>
+            <th className={`${styles.headerCell} ${styles.colAuthor}`}>Author</th>
+            <th className={`${styles.headerCell} ${styles.colDescription}`}>Description</th>
+            <th className={`${styles.headerCell} ${styles.colDate}`}>Date</th>
+            <th className={`${styles.headerCell} ${styles.colStatus}`}>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {!isLoading && tickets.length === 0 ? (
+            <tr>
+              <td className={styles.emptyState} colSpan={6}>No tickets yet</td>
+            </tr>
+          ) : (
+            tickets.map((ticket) => (
+              <tr key={ticket.id}>
+                <td className={`${styles.cell} ${styles.colId}`}>{ticket.id}</td>
+                <td className={`${styles.cell} ${styles.colRoom}`}>{ticket.roomNumber}</td>
+                <td className={`${styles.cell} ${styles.colAuthor}`}>{ticket.authorName}</td>
+                <td className={`${styles.cell} ${styles.colDescription}`}>{ticket.description}</td>
+                <td className={`${styles.cell} ${styles.colDate}`}>{ticket.createdAt}</td>
+                <td className={`${styles.cell} ${styles.colStatus}`}>{ticket.statusText}</td>
+              </tr>
+            ))
+          )}
+        </tbody>
+      </table>
+    </div>
   )
 }
-  export default TicketsTable
+export default TicketsTable
