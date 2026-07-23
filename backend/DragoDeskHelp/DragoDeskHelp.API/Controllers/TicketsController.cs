@@ -17,11 +17,13 @@ namespace DragoDeskHelp.API.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TicketResponseDto>>> GetTickets(
+        public async Task<ActionResult<PagedResponse<TicketResponseDto>>> GetTickets(
             [FromQuery] TicketStatus? status, 
-            [FromQuery] string? assigneeId)
+            [FromQuery] string? assigneeId,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
         {
-            var response = await _ticketService.GetTicketsAsync(status, assigneeId);
+            var response = await _ticketService.GetTicketsAsync(status, assigneeId, pageNumber, pageSize);
             return Ok(response);
         }
 

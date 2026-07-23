@@ -18,7 +18,7 @@ namespace DragoDeskHelp.BLL.Services
             _telegramBotService = telegramBotService;
         }
 
-        public async Task<IEnumerable<TicketResponseDto>> GetTicketsAsync(TicketStatus? status = null, string? assigneeId = null)
+        public async Task<PagedResponse<TicketResponseDto>> GetTicketsAsync(TicketStatus? status = null, string? assigneeId = null, int pageNumber = 1, int pageSize = 10)
         {
             var query = _context.Tickets.AsQueryable();
 
@@ -32,10 +32,17 @@ namespace DragoDeskHelp.BLL.Services
                 query = query.Where(t => t.AssigneeTelegramId == assigneeId);
             }
 
-            var rawTickets = await query.OrderByDescending(t => t.CreatedAt).ToListAsync();
+            var totalCount = await query.CountAsync();
+
+            var rawTickets = await query
+                .OrderByDescending(t => t.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
             var kyivTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv");
 
-            return rawTickets.Select(t => {
+            var items = rawTickets.Select(t => {
                 var localTime = TimeZoneInfo.ConvertTimeFromUtc(t.CreatedAt, kyivTimeZone);
                 return new TicketResponseDto
                 {
@@ -55,6 +62,14 @@ namespace DragoDeskHelp.BLL.Services
                     AssigneeId = t.AssigneeTelegramId 
                 };
             });
+
+            return new PagedResponse<TicketResponseDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
         }
 
         public async Task<string> CreateTicketAsync(TicketRequestDto ticketDto)
