@@ -79,6 +79,14 @@
   font-size: 16px;
 }
 
+.wrapper tbody tr {
+  transition: background-color 0.5s ease;
+}
+
+.highlightedRow {
+  background-color: #e8f5e9 !important;
+}
+
 .wrapper tbody tr:nth-child(even) {
   background-color: #fafafa;
 }

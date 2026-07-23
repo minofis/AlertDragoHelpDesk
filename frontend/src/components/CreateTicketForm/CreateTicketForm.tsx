@@ -4,7 +4,7 @@ import styles from './CreateTicketForm.module.css'
 const VALID_ROOMS = ['101', '102', '103', '201', '202']
 
 interface CreateTicketFormProps {
-  onSuccess: () => void
+  onSuccess: (ticketId: number) => void
 }
 
 const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
@@ -78,8 +78,9 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
         setDescription('')
         setShowSuccessToast(true)
         setTimeout(() => setIsExiting(true), 3000)
-        onSuccess()
-        console.log('Ticket created successfully', await response.json())
+        const newTicket = await response.json()
+        console.log('Ticket created successfully', newTicket)
+        onSuccess(Number(newTicket.id))
       } else {
         console.error('Failed to create ticket', response.status)
         throw new Error(`Server error: ${response.status}`)
