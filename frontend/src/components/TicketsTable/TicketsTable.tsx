@@ -3,9 +3,10 @@ import styles from './TicketsTable.module.css'
 
 interface TicketsTableProps {
   refreshKey: number
+  highlightedTicketId: number | null
 }
 
-const TicketsTable: React.FC<TicketsTableProps> = ({ refreshKey }) => {
+const TicketsTable: React.FC<TicketsTableProps> = ({ refreshKey, highlightedTicketId }) => {
 
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -47,7 +48,10 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ refreshKey }) => {
             </tr>
           ) : (
             tickets.map((ticket) => (
-              <tr key={ticket.id}>
+              <tr
+                key={ticket.id}
+                className={String(ticket.id) === String(highlightedTicketId) ? styles.highlightedRow : undefined}
+              >
                 <td className={`${styles.cell} ${styles.colId}`}>{ticket.id}</td>
                 <td className={`${styles.cell} ${styles.colRoom}`}>{ticket.roomNumber}</td>
                 <td className={`${styles.cell} ${styles.colAuthor}`}>{ticket.authorName}</td>
