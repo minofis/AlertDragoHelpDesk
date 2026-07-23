@@ -5,7 +5,7 @@ namespace DragoDeskHelp.Core.Interfaces
 {
     public interface ITicketService
     {
-        Task<IEnumerable<TicketResponseDto>> GetTicketsAsync(TicketStatus? status = null, string? assigneeId = null);
+        Task<PagedResponse<TicketResponseDto>> GetTicketsAsync(TicketStatus? status = null, string? assigneeId = null, int pageNumber = 1, int pageSize = 10);
 
         Task<TicketResponseDto?> GetTicketByIdAsync(int id);
 
