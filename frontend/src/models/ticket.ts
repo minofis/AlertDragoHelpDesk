@@ -1,4 +1,4 @@
-interface Ticket {
+export interface Ticket {
   id: number
   roomNumber: string
   authorName: string
@@ -6,4 +6,12 @@ interface Ticket {
   statusText: string
   createdAt: string
   assigneeId: number | null
+}
+
+export interface PagedResponse<T> {
+  items: T[]
+  totalCount: number
+  pageNumber: number
+  pageSize: number
+  totalPages: number
 }
