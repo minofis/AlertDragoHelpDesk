@@ -1,16 +1,11 @@
 .container {
   max-width: 500px;
   width: 100%;
-  margin: 40px auto;
-  background-color: #ffffff;
-  padding: 32px;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   box-sizing: border-box;
 }
 
 .title {
-  margin-top: 0;
+  margin: 0 0 24px;
 }
 
 .form {
@@ -24,7 +19,7 @@
 .fieldWrapper {
   display: flex;
   flex-direction: column;
-  min-height: 70px;
+  min-height: 60px;
 }
 
 .label {
@@ -50,55 +45,8 @@
 
 }
 
-.toastBase {
-  position: fixed;
-  top: 20px;
-  right: 20px;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  z-index: 1000;
-  animation: slideInDown 0.3s ease-out forwards;
-}
-
-.toastSuccess {
-  background: #4caf50;
-}
-
-.toastError {
-  background: #f44336;
-}
-
-@keyframes slideInDown {
-  from {
-    transform: translateY(-20px);
-    opacity: 0;
-  }
-  to {
-    transform: translateY(0);
-    opacity: 1;
-  }
-}
-
-@keyframes slideOutUp {
-  from {
-    transform: translateY(0);
-  }
-  to {
-    transform: translateY(-100%);
-  }
-}
-
-.toastExit {
-  animation: slideOutUp 0.3s ease-in forwards;
-}
-
 @media (max-width: 600px) {
   .container {
-    padding: 16px;
-    margin: 24px auto;
-    width: calc(100% - 32px);
-    border-radius: 8px;
+    width: 100%;
   }
 }

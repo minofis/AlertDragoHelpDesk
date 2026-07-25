@@ -1,44 +1,18 @@
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState } from 'react'
 import styles from './CreateTicketForm.module.css'
 
 const VALID_ROOMS = ['101', '102', '103', '201', '202']
 
 interface CreateTicketFormProps {
   onSuccess: (ticketId: number) => void
+  onError: () => void
 }
 
-const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
+const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess, onError }) => {
   const [roomNumber, setRoomNumber] = useState('')
   const [description, setDescription] = useState('')
-  const [showSuccessToast, setShowSuccessToast] = useState(false)
-  const [showErrorToast, setShowErrorToast] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [validationErrors, setValidationErrors] = useState<{roomNumber?: string, description?: string}>({})
-  const [isExiting, setIsExiting] = useState(false)
-  const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
-
-  useEffect(() => {
-    if (isExiting) {
-      exitTimerRef.current = setTimeout(() => {
-        setShowSuccessToast(false)
-        setShowErrorToast(false)
-        setIsExiting(false)
-      }, 300)
-      return () => {
-        if (exitTimerRef.current) {
-          clearTimeout(exitTimerRef.current)
-        }
-      }
-    }
-  }, [isExiting])
-
-  useEffect(() => {
-    return () => {
-      if (exitTimerRef.current) {
-        clearTimeout(exitTimerRef.current)
-      }
-    }
-  }, [])
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -76,8 +50,6 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
       if (response.ok) {
         setRoomNumber('')
         setDescription('')
-        setShowSuccessToast(true)
-        setTimeout(() => setIsExiting(true), 3000)
         const newTicket = await response.json()
         console.log('Ticket created successfully', newTicket)
         onSuccess(Number(newTicket.id))
@@ -86,9 +58,8 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
         throw new Error(`Server error: ${response.status}`)
       }
     } catch (error) {
-      setShowErrorToast(true)
-      setTimeout(() => setIsExiting(true), 3000)
       console.error('Error sending request:', error)
+      onError()
     } finally {
       setIsLoading(false)
     }
@@ -146,12 +117,6 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess }) => {
           {isLoading ? 'Creating...' : 'Create'}
         </button>
       </form>
-      {showSuccessToast && (
-        <div className={`${styles.toastBase} ${styles.toastSuccess} ${isExiting ? styles.toastExit : ''}`}>Ticket successfully sent!</div>
-      )}
-      {showErrorToast && (
-        <div className={`${styles.toastBase} ${styles.toastError} ${isExiting ? styles.toastExit : ''}`}>Failed to create ticket. Please try again.</div>
-      )}
     </div>
   )
 }
