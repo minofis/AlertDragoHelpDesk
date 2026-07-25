@@ -1,8 +1,12 @@
 import { useState, useEffect } from 'react'
 import type { Ticket } from './models/ticket'
+import { useToast } from './hooks/useToast'
+import Header from './components/Header/Header'
+import BaseModal from './components/BaseModal/BaseModal'
 import CreateTicketForm from './components/CreateTicketForm/CreateTicketForm'
 import TicketsTable from './components/TicketsTable/TicketsTable'
 import TicketDetailsModal from './components/TicketDetailsModal/TicketDetailsModal'
+import Toast from './components/Toast/Toast'
 
 function App() {
   const [refreshKey, setRefreshKey] = useState(0)
@@ -10,6 +14,8 @@ function App() {
   const [pageNumber, setPageNumber] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const { toast, showToast } = useToast()
 
   useEffect(() => {
     if (highlightedTicketId === null) return
@@ -31,13 +37,7 @@ function App() {
 
   return (
     <div className="App">
-      <CreateTicketForm
-        onSuccess={(ticketId) => {
-          setPageNumber(1)
-          setRefreshKey((key) => key + 1)
-          setHighlightedTicketId(ticketId)
-        }}
-      />
+      <Header onCreateClick={() => setIsCreateModalOpen(true)} />
       <TicketsTable
         refreshKey={refreshKey}
         highlightedTicketId={highlightedTicketId}
@@ -48,12 +48,29 @@ function App() {
         onNextPage={handleNextPage}
         onRowClick={setSelectedTicket}
       />
+      {isCreateModalOpen && (
+        <BaseModal onClose={() => setIsCreateModalOpen(false)}>
+          <CreateTicketForm
+            onSuccess={(ticketId) => {
+              setPageNumber(1)
+              setRefreshKey((key) => key + 1)
+              setHighlightedTicketId(ticketId)
+              setIsCreateModalOpen(false)
+              showToast('Ticket successfully sent!', 'success')
+            }}
+            onError={() => {
+              showToast('Failed to create ticket. Please try again.', 'error')
+            }}
+          />
+        </BaseModal>
+      )}
       {selectedTicket !== null && (
         <TicketDetailsModal
           ticket={selectedTicket}
           onClose={() => setSelectedTicket(null)}
         />
       )}
+      <Toast toast={toast} />
     </div>
   )
 }
