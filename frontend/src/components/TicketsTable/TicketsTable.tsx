@@ -10,6 +10,7 @@ interface TicketsTableProps {
   onTotalPagesChange: (totalPages: number) => void
   onPrevPage: () => void
   onNextPage: () => void
+  onRowClick?: (ticket: Ticket) => void
 }
 
 const TicketsTable: React.FC<TicketsTableProps> = ({
@@ -20,6 +21,7 @@ const TicketsTable: React.FC<TicketsTableProps> = ({
   onTotalPagesChange,
   onPrevPage,
   onNextPage,
+  onRowClick,
 }) => {
 
   const [tickets, setTickets] = useState<Ticket[]>([])
@@ -67,6 +69,7 @@ const TicketsTable: React.FC<TicketsTableProps> = ({
                 <tr
                   key={ticket.id}
                   className={String(ticket.id) === String(highlightedTicketId) ? styles.highlightedRow : undefined}
+                  onClick={() => onRowClick?.(ticket)}
                 >
                   <td className={`${styles.cell} ${styles.colId}`}>{ticket.id}</td>
                   <td className={`${styles.cell} ${styles.colRoom}`}>{ticket.roomNumber}</td>
