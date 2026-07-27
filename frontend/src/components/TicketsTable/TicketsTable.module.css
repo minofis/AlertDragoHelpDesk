@@ -2,15 +2,26 @@
   background-color: #ffffff;
   border-radius: 12px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  margin: 24px 16px;
+  margin: 24px 16px 24px;
   max-width: 900px;
+  padding-bottom: 12px;
   box-sizing: border-box;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 600;
+  color: #222;
+  text-align: center;
+  margin: 24px 16px 32px;
+  max-width: 900px;
 }
 
 .tableScrollWrapper {
   overflow-x: auto;
-  overflow-y: auto;
-  max-height: 500px;
+  overflow-y: hidden;
+  height: 442px;
+  margin-bottom: 16px;
 }
 
 .table {
@@ -33,6 +44,9 @@
   border-bottom: 2px solid #e0e0e0;
   padding: 12px 16px;
   text-align: left;
+  height: 40px;
+  box-sizing: border-box;
+  white-space: nowrap;
 }
 
 .cell {
@@ -40,6 +54,11 @@
   padding: 10px 16px;
   text-align: left;
   font-size: 14px;
+  height: 40px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .colId {
@@ -102,7 +121,11 @@
 /* 900px max-width + 32px margins */
 @media (min-width: 932px) {
   .wrapper {
-    margin: 24px auto;
+    margin: 16px auto 24px;
+  }
+
+  .title {
+    margin: 24px auto 32px;
   }
 }
 
@@ -110,13 +133,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
+  gap: 16px;
   width: 100%;
-  margin-top: 1rem;
-  padding: 0 16px 12px;
 }
 
 .paginationButton {
+  min-width: 80px;
   padding: 6px 16px;
   border: 1px solid #d0d0d0;
   border-radius: 6px;
@@ -146,21 +168,23 @@
 
 @media (max-width: 600px) {
   .wrapper {
-    margin: 16px;
+    margin: 24px 16px 16px;
+    padding-bottom: 8px;
     border-radius: 8px;
   }
 
-  .tableScrollWrapper {
-    max-height: 400px;
+  .title {
+    margin: 16px 16px 24px;
+    font-size: 22px;
   }
 
   .pagination {
-    gap: 8px;
-    margin-top: 0.75rem;
-    padding: 0 12px 8px;
+    gap: 12px;
+    padding: 8px 0;
   }
 
   .paginationButton {
+    min-width: 70px;
     padding: 4px 10px;
     font-size: 12px;
   }
@@ -170,3 +194,4 @@
     min-width: 100px;
   }
 }
+

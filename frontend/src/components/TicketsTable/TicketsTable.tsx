@@ -46,8 +46,10 @@ const TicketsTable: React.FC<TicketsTableProps> = ({
   }, [refreshKey, pageNumber, onTotalPagesChange])
 
   return (
-    <div className={styles.wrapper}>
-      <div className={styles.tableScrollWrapper}>
+    <>
+      <h2 className={styles.title}>All Tickets</h2>
+      <div className={styles.wrapper}>
+        <div className={styles.tableScrollWrapper}>
         <table className={styles.table}>
           <thead className={styles.thead}>
             <tr>
@@ -101,8 +103,9 @@ const TicketsTable: React.FC<TicketsTableProps> = ({
         >
           Next &gt;
         </button>
+        </div>
       </div>
-    </div>
+    </>
   )
 }
 export default TicketsTable
