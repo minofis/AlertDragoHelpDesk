@@ -4,6 +4,7 @@
 
 ### Frontend
 - **React 19**, **TypeScript 7**, **Vite 8** (build tool)
+- **react-router-dom 7** (client-side routing)
 - CSS Modules for styling (no UI library)
 - ESLint 10
 
@@ -39,9 +40,15 @@
 │   └── src/
 │       ├── models/ticket.ts        # Ticket TypeScript type
 │       ├── components/
-│       │   ├── CreateTicketForm/   # Ticket creation form component
-│       │   └── TicketsTable/       # Ticket listing/filtering table component
-│       └── App.tsx                 # Root component (form + table)
+│       │   ├── BaseModal/           # Reusable modal overlay with scroll-lock
+│       │   ├── CreateTicketForm/    # Ticket creation form component
+│       │   ├── Header/              # Standalone header (logo + create button)
+│       │   ├── Layout/              # Shared layout: global header, modal/Toast logic, <Outlet />
+│       │   ├── TicketDetailsModal/  # Read-only ticket detail modal
+│       │   ├── TicketsTable/        # Ticket listing/filtering table (public & admin)
+│       │   └── Toast/               # Toast notification component
+│       ├── hooks/useToast.ts        # Toast state management hook
+│       └── App.tsx                  # Root component: BrowserRouter, Routes (/ and /admin)
 │
 ├── bot/
 │   ├── main.py                     # Bot runner (aiogram + FastAPI in one loop)
@@ -64,7 +71,7 @@
 - **EF Core as Repository/UoW:** `AppDbContext` acts directly as the data access layer; no separate repository interfaces.
 - **DTO Mapping:** API contracts (Request/Response DTOs) are separate from domain entities.
 - **Enum-based State Machine:** `TicketStatus` enum (New, InProgress, Resolved, Rejected) drives ticket lifecycle transitions.
-- **State Management:** No external library — React `useState` + `refreshKey` pattern for re-fetching after mutations.
+- **State Management:** No external library — React `useState` + `refreshKey` pattern for re-fetching after mutations. Shared state (refresh key, pagination, ticket selection) is held in the `Layout` component and passed to child routes via React Router's `<Outlet context>`.
 - **Dockerized Microservices:** 4 independent containers orchestrated via Docker Compose, communicating over HTTP.
 
 ---
