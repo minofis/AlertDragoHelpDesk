@@ -97,6 +97,9 @@ function Layout() {
         <TicketDetailsModal
           ticket={selectedTicket}
           onClose={() => setSelectedTicket(null)}
+          isAdmin={isAdminView}
+          showToast={showToast}
+          onRefreshNeeded={() => setRefreshKey((key) => key + 1)}
         />
       )}
       <Toast toast={toast} />
