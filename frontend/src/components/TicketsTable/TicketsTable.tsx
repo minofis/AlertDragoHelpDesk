@@ -1,28 +1,24 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
+import { useOutletContext } from 'react-router-dom'
 import type { Ticket, PagedResponse } from '../../models/ticket'
+import type { OutletContextType } from '../Layout/Layout'
 import styles from './TicketsTable.module.css'
 
 interface TicketsTableProps {
-  refreshKey: number
-  highlightedTicketId: number | null
-  pageNumber: number
-  totalPages: number
-  onTotalPagesChange: (totalPages: number) => void
-  onPrevPage: () => void
-  onNextPage: () => void
-  onRowClick?: (ticket: Ticket) => void
+  isAdminView?: boolean
 }
 
-const TicketsTable: React.FC<TicketsTableProps> = ({
-  refreshKey,
-  highlightedTicketId,
-  pageNumber,
-  totalPages,
-  onTotalPagesChange,
-  onPrevPage,
-  onNextPage,
-  onRowClick,
-}) => {
+const TicketsTable: React.FC<TicketsTableProps> = ({ isAdminView: _isAdminView }) => {
+  const {
+    refreshKey,
+    highlightedTicketId,
+    pageNumber,
+    totalPages,
+    onTotalPagesChange,
+    onPrevPage,
+    onNextPage,
+    onRowClick,
+  } = useOutletContext<OutletContextType>()
 
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -79,7 +75,7 @@ const TicketsTable: React.FC<TicketsTableProps> = ({
                   <td className={`${styles.cell} ${styles.colDescription}`}>{ticket.description}</td>
                   <td className={`${styles.cell} ${styles.colDate}`}>{ticket.createdAt}</td>
                   <td className={`${styles.cell} ${styles.colStatus}`}>{ticket.statusText}</td>
-                </tr>
+                  </tr>
               ))
             )}
           </tbody>
