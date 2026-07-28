@@ -1,0 +1,107 @@
+import { useState, useEffect } from 'react'
+import { Outlet, useLocation } from 'react-router-dom'
+import type { Ticket } from '../../models/ticket'
+import { useToast } from '../../hooks/useToast'
+import BaseModal from '../BaseModal/BaseModal'
+import CreateTicketForm from '../CreateTicketForm/CreateTicketForm'
+import TicketDetailsModal from '../TicketDetailsModal/TicketDetailsModal'
+import Toast from '../Toast/Toast'
+import styles from './Layout.module.css'
+
+export interface OutletContextType {
+  refreshKey: number
+  highlightedTicketId: number | null
+  pageNumber: number
+  totalPages: number
+  onTotalPagesChange: (totalPages: number) => void
+  onPrevPage: () => void
+  onNextPage: () => void
+  onRowClick: (ticket: Ticket) => void
+}
+
+function Layout() {
+  const location = useLocation()
+  const isAdminView = location.pathname === '/admin'
+
+  const [refreshKey, setRefreshKey] = useState(0)
+  const [highlightedTicketId, setHighlightedTicketId] = useState<number | null>(null)
+  const [pageNumber, setPageNumber] = useState(1)
+  const [totalPages, setTotalPages] = useState(1)
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const { toast, showToast } = useToast()
+
+  useEffect(() => {
+    if (highlightedTicketId === null) return
+
+    const timer = setTimeout(() => {
+      setHighlightedTicketId(null)
+    }, 3000)
+
+    return () => clearTimeout(timer)
+  }, [highlightedTicketId])
+
+  const handlePrevPage = () => {
+    setPageNumber((prev) => Math.max(prev - 1, 1))
+  }
+
+  const handleNextPage = () => {
+    setPageNumber((prev) => Math.min(prev + 1, totalPages))
+  }
+
+  const handleCreateClick = () => {
+    setIsCreateModalOpen(true)
+  }
+
+  const outletContext: OutletContextType = {
+    refreshKey,
+    highlightedTicketId,
+    pageNumber,
+    totalPages,
+    onTotalPagesChange: setTotalPages,
+    onPrevPage: handlePrevPage,
+    onNextPage: handleNextPage,
+    onRowClick: setSelectedTicket,
+  }
+
+  return (
+    <div className={styles.layout}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>ADHD</h1>
+        {!isAdminView && (
+          <button className={styles.createButton} onClick={handleCreateClick} type="button">
+            Create Ticket
+          </button>
+        )}
+      </header>
+      <div className={styles.outlet}>
+        <Outlet context={outletContext} />
+      </div>
+      {isCreateModalOpen && (
+        <BaseModal onClose={() => setIsCreateModalOpen(false)}>
+          <CreateTicketForm
+            onSuccess={(ticketId) => {
+              setPageNumber(1)
+              setRefreshKey((key) => key + 1)
+              setHighlightedTicketId(ticketId)
+              setIsCreateModalOpen(false)
+              showToast('Ticket successfully sent!', 'success')
+            }}
+            onError={() => {
+              showToast('Failed to create ticket. Please try again.', 'error')
+            }}
+          />
+        </BaseModal>
+      )}
+      {selectedTicket !== null && (
+        <TicketDetailsModal
+          ticket={selectedTicket}
+          onClose={() => setSelectedTicket(null)}
+        />
+      )}
+      <Toast toast={toast} />
+    </div>
+  )
+}
+
+export default Layout
