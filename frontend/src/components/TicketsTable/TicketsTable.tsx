@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import type { Ticket, PagedResponse } from '../../models/ticket'
 import type { OutletContextType } from '../Layout/Layout'
@@ -18,28 +18,71 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ isAdminView: _isAdminView }
     onPrevPage,
     onNextPage,
     onRowClick,
+    onTicketsLoaded,
   } = useOutletContext<OutletContextType>()
 
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const initialLoadDone = useRef(false)
 
   useEffect(() => {
+    let cancelled = false
+
     const fetchTickets = async () => {
       try {
         const response = await fetch(`http://localhost:5220/api/Tickets?pageNumber=${pageNumber}`)
         const data: PagedResponse<Ticket> = await response.json()
+        if (cancelled) return
         setTickets(data.items)
         onTotalPagesChange(data.totalPages)
-        console.log('Received tickets:', data)
+        onTicketsLoaded(data.items)
+        if (!initialLoadDone.current) {
+          initialLoadDone.current = true
+          setIsLoading(false)
+        }
       } catch (error) {
+        if (cancelled) return
         console.error('Error fetching tickets:', error)
-      } finally {
-        setIsLoading(false)
+        if (!initialLoadDone.current) {
+          initialLoadDone.current = true
+          setIsLoading(false)
+        }
       }
     }
 
     fetchTickets()
-  }, [refreshKey, pageNumber, onTotalPagesChange])
+
+    return () => {
+      cancelled = true
+    }
+  }, [refreshKey, pageNumber])
+
+  const tableBody = (() => {
+    if (isLoading) {
+      return null
+    }
+    if (tickets.length === 0) {
+      return (
+        <tr>
+          <td className={styles.emptyState} colSpan={6}>No tickets yet</td>
+        </tr>
+      )
+    }
+    return tickets.map((ticket) => (
+      <tr
+        key={ticket.id}
+        className={String(ticket.id) === String(highlightedTicketId) ? styles.highlightedRow : undefined}
+        onClick={() => onRowClick?.(ticket)}
+      >
+        <td className={`${styles.cell} ${styles.colId}`}>{ticket.id}</td>
+        <td className={`${styles.cell} ${styles.colRoom}`}>{ticket.roomNumber}</td>
+        <td className={`${styles.cell} ${styles.colAuthor}`}>{ticket.authorName}</td>
+        <td className={`${styles.cell} ${styles.colDescription}`}>{ticket.description}</td>
+        <td className={`${styles.cell} ${styles.colDate}`}>{ticket.createdAt}</td>
+        <td className={`${styles.cell} ${styles.colStatus}`}>{ticket.statusText}</td>
+      </tr>
+    ))
+  })()
 
   return (
     <>
@@ -58,25 +101,12 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ isAdminView: _isAdminView }
             </tr>
           </thead>
           <tbody>
-            {!isLoading && tickets.length === 0 ? (
+            {isLoading ? (
               <tr>
-                <td className={styles.emptyState} colSpan={6}>No tickets yet</td>
+                <td className={styles.emptyState} colSpan={6}>Loading...</td>
               </tr>
             ) : (
-              tickets.map((ticket) => (
-                <tr
-                  key={ticket.id}
-                  className={String(ticket.id) === String(highlightedTicketId) ? styles.highlightedRow : undefined}
-                  onClick={() => onRowClick?.(ticket)}
-                >
-                  <td className={`${styles.cell} ${styles.colId}`}>{ticket.id}</td>
-                  <td className={`${styles.cell} ${styles.colRoom}`}>{ticket.roomNumber}</td>
-                  <td className={`${styles.cell} ${styles.colAuthor}`}>{ticket.authorName}</td>
-                  <td className={`${styles.cell} ${styles.colDescription}`}>{ticket.description}</td>
-                  <td className={`${styles.cell} ${styles.colDate}`}>{ticket.createdAt}</td>
-                  <td className={`${styles.cell} ${styles.colStatus}`}>{ticket.statusText}</td>
-                  </tr>
-              ))
+              tableBody
             )}
           </tbody>
         </table>

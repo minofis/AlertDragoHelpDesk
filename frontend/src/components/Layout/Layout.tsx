@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import type { Ticket } from '../../models/ticket'
 import { useToast } from '../../hooks/useToast'
+import { useSmartPolling } from '../../hooks/useSmartPolling'
 import BaseModal from '../BaseModal/BaseModal'
 import CreateTicketForm from '../CreateTicketForm/CreateTicketForm'
 import TicketDetailsModal from '../TicketDetailsModal/TicketDetailsModal'
@@ -17,6 +18,7 @@ export interface OutletContextType {
   onPrevPage: () => void
   onNextPage: () => void
   onRowClick: (ticket: Ticket) => void
+  onTicketsLoaded: (tickets: Ticket[]) => void
 }
 
 function Layout() {
@@ -27,9 +29,12 @@ function Layout() {
   const [highlightedTicketId, setHighlightedTicketId] = useState<number | null>(null)
   const [pageNumber, setPageNumber] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
-  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null)
+  const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null)
+  const [tickets, setTickets] = useState<Ticket[]>([])
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const { toast, showToast } = useToast()
+
+  useSmartPolling(() => setRefreshKey((prev) => prev + 1), 60000)
 
   useEffect(() => {
     if (highlightedTicketId === null) return
@@ -40,6 +45,11 @@ function Layout() {
 
     return () => clearTimeout(timer)
   }, [highlightedTicketId])
+
+  const activeTicket = useMemo(
+    () => (selectedTicketId !== null ? (tickets.find((t) => t.id === selectedTicketId) ?? null) : null),
+    [selectedTicketId, tickets]
+  )
 
   const handlePrevPage = () => {
     setPageNumber((prev) => Math.max(prev - 1, 1))
@@ -61,7 +71,8 @@ function Layout() {
     onTotalPagesChange: setTotalPages,
     onPrevPage: handlePrevPage,
     onNextPage: handleNextPage,
-    onRowClick: setSelectedTicket,
+    onRowClick: (ticket: Ticket) => setSelectedTicketId(ticket.id),
+    onTicketsLoaded: setTickets,
   }
 
   return (
@@ -93,10 +104,10 @@ function Layout() {
           />
         </BaseModal>
       )}
-      {selectedTicket !== null && (
+      {activeTicket !== null && (
         <TicketDetailsModal
-          ticket={selectedTicket}
-          onClose={() => setSelectedTicket(null)}
+          ticket={activeTicket}
+          onClose={() => setSelectedTicketId(null)}
           isAdmin={isAdminView}
           showToast={showToast}
           onRefreshNeeded={() => setRefreshKey((key) => key + 1)}
