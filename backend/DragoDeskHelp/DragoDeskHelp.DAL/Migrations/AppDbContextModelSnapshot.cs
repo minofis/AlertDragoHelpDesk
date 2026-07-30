@@ -33,9 +33,8 @@ namespace DragoDeskHelp.DAL.Migrations
                     b.Property<string>("AssigneeTelegramId")
                         .HasColumnType("text");
 
-                    b.Property<string>("AuthorName")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -53,7 +52,47 @@ namespace DragoDeskHelp.DAL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AuthorId");
+
                     b.ToTable("Tickets");
+                });
+
+            modelBuilder.Entity("DragoDeskHelp.Core.Entities.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("DragoDeskHelp.Core.Entities.Ticket", b =>
+                {
+                    b.HasOne("DragoDeskHelp.Core.Entities.User", "Author")
+                        .WithMany("Tickets")
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("DragoDeskHelp.Core.Entities.User", b =>
+                {
+                    b.Navigation("Tickets");
                 });
 #pragma warning restore 612, 618
         }

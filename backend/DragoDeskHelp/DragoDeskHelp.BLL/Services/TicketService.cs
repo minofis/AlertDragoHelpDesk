@@ -20,7 +20,7 @@ namespace DragoDeskHelp.BLL.Services
 
         public async Task<PagedResponse<TicketResponseDto>> GetTicketsAsync(TicketStatus? status = null, string? assigneeId = null, int pageNumber = 1, int pageSize = 10)
         {
-            var query = _context.Tickets.AsQueryable();
+            var query = _context.Tickets.Include(t => t.Author).AsQueryable();
 
             if (status.HasValue)
             {
@@ -48,7 +48,7 @@ namespace DragoDeskHelp.BLL.Services
                 {
                     Id = t.Id,
                     RoomNumber = t.RoomNumber,
-                    AuthorName = t.AuthorName,
+                    AuthorName = t.Author.Name,
                     Description = t.Description,
                     StatusText = t.Status switch 
                     {
@@ -74,13 +74,26 @@ namespace DragoDeskHelp.BLL.Services
 
         public async Task<string> CreateTicketAsync(TicketRequestDto ticketDto)
         {
+            var user = await _context.Users.FirstOrDefaultAsync();
+            if (user == null)
+            {
+                user = new User
+                {
+                    Id = Guid.NewGuid(),
+                    Email = "default@drago.local",
+                    Name = ticketDto.AuthorName,
+                    Role = UserRole.Teacher
+                };
+                _context.Users.Add(user);
+            }
+
             var ticket = new Ticket
             {
                 RoomNumber = ticketDto.RoomNumber,
-                AuthorName = ticketDto.AuthorName,
                 Description = ticketDto.Description,
                 CreatedAt = DateTime.UtcNow,
-                Status = TicketStatus.New
+                Status = TicketStatus.New,
+                AuthorId = user.Id
             };
 
             _context.Tickets.Add(ticket);
@@ -91,7 +104,7 @@ namespace DragoDeskHelp.BLL.Services
             await _telegramBotService.NotifyNewTicketAsync(
                 displayId, 
                 ticket.RoomNumber, 
-                ticket.AuthorName, 
+                user.Name, 
                 ticket.Description);
 
             return displayId;
@@ -123,7 +136,10 @@ namespace DragoDeskHelp.BLL.Services
 
         public async Task<TicketResponseDto?> GetTicketByIdAsync(int id)
         {
-            var ticket = await _context.Tickets.FindAsync(id);
+            var ticket = await _context.Tickets
+                .Include(t => t.Author)
+                .FirstOrDefaultAsync(t => t.Id == id);
+                
             if (ticket == null) return null;
 
             var kyivTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv");
@@ -133,7 +149,7 @@ namespace DragoDeskHelp.BLL.Services
             {
                 Id = ticket.Id,
                 RoomNumber = ticket.RoomNumber,
-                AuthorName = ticket.AuthorName,
+                AuthorName = ticket.Author.Name,
                 Description = ticket.Description,
                 StatusText = ticket.Status switch 
                 {

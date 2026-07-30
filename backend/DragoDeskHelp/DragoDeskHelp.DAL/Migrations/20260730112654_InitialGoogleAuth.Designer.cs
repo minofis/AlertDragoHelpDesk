@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DragoDeskHelp.DAL.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20260321115501_InitialWithAssignee")]
-    partial class InitialWithAssignee
+    [Migration("20260730112654_InitialGoogleAuth")]
+    partial class InitialGoogleAuth
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -36,9 +36,8 @@ namespace DragoDeskHelp.DAL.Migrations
                     b.Property<string>("AssigneeTelegramId")
                         .HasColumnType("text");
 
-                    b.Property<string>("AuthorName")
-                        .IsRequired()
-                        .HasColumnType("text");
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone");
@@ -56,7 +55,47 @@ namespace DragoDeskHelp.DAL.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AuthorId");
+
                     b.ToTable("Tickets");
+                });
+
+            modelBuilder.Entity("DragoDeskHelp.Core.Entities.User", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("Role")
+                        .HasColumnType("integer");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("DragoDeskHelp.Core.Entities.Ticket", b =>
+                {
+                    b.HasOne("DragoDeskHelp.Core.Entities.User", "Author")
+                        .WithMany("Tickets")
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+                });
+
+            modelBuilder.Entity("DragoDeskHelp.Core.Entities.User", b =>
+                {
+                    b.Navigation("Tickets");
                 });
 #pragma warning restore 612, 618
         }
