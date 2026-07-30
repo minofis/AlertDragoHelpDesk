@@ -23,8 +23,6 @@ builder.Services.AddHttpClient<ITelegramBotService, TelegramBotService>(client =
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 
-builder.Services.AddControllers();
-
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowAll", policy =>
@@ -79,11 +77,12 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-
 app.UseSwagger();
 app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
+
+app.UseRouting();
 
 app.UseCors("AllowAll");
 

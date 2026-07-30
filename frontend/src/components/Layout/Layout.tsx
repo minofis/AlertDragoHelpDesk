@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 import type { Ticket } from '../../models/ticket'
+import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../hooks/useToast'
 import { useSmartPolling } from '../../hooks/useSmartPolling'
 import BaseModal from '../BaseModal/BaseModal'
@@ -24,6 +25,7 @@ export interface OutletContextType {
 function Layout() {
   const location = useLocation()
   const isAdminView = location.pathname === '/admin'
+  const { user, logout } = useAuth()
 
   const [refreshKey, setRefreshKey] = useState(0)
   const [highlightedTicketId, setHighlightedTicketId] = useState<number | null>(null)
@@ -79,11 +81,19 @@ function Layout() {
     <div className={styles.layout}>
       <header className={styles.header}>
         <h1 className={styles.title}>ADHD</h1>
-        {!isAdminView && (
-          <button className={styles.createButton} onClick={handleCreateClick} type="button">
-            Create Ticket
+        <div className={styles.headerRight}>
+          {!isAdminView && (
+            <button className={styles.createButton} onClick={handleCreateClick} type="button">
+              Create Ticket
+            </button>
+          )}
+          <span className={styles.userInfo}>
+            {user?.name ?? user?.email}
+          </span>
+          <button className={styles.logoutButton} onClick={logout} type="button">
+            Logout
           </button>
-        )}
+        </div>
       </header>
       <div className={styles.outlet}>
         <Outlet context={outletContext} />

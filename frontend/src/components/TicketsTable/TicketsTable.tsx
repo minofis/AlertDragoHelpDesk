@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import type { Ticket, PagedResponse } from '../../models/ticket'
 import type { OutletContextType } from '../Layout/Layout'
+import { apiFetch } from '../../api/client'
 import styles from './TicketsTable.module.css'
 
 interface TicketsTableProps {
@@ -30,8 +31,7 @@ const TicketsTable: React.FC<TicketsTableProps> = ({ isAdminView: _isAdminView }
 
     const fetchTickets = async () => {
       try {
-        const response = await fetch(`http://localhost:5220/api/Tickets?pageNumber=${pageNumber}`)
-        const data: PagedResponse<Ticket> = await response.json()
+        const data = await apiFetch<PagedResponse<Ticket>>(`/api/Tickets?pageNumber=${pageNumber}`)
         if (cancelled) return
         setTickets(data.items)
         onTotalPagesChange(data.totalPages)

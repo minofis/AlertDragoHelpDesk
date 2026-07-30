@@ -22,6 +22,12 @@
   color: #222;
 }
 
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
 .createButton {
   padding: 8px 20px;
   border: none;
@@ -36,6 +42,32 @@
 
 .createButton:hover {
   background-color: #1557b0;
+}
+
+.userInfo {
+  font-size: 14px;
+  color: #555;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.logoutButton {
+  padding: 6px 16px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  background-color: transparent;
+  color: #555;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.logoutButton:hover {
+  background-color: #f0f0f0;
+  color: #222;
 }
 
 .outlet {
@@ -55,5 +87,18 @@
   .createButton {
     padding: 6px 14px;
     font-size: 13px;
+  }
+
+  .headerRight {
+    gap: 10px;
+  }
+
+  .userInfo {
+    display: none;
+  }
+
+  .logoutButton {
+    padding: 6px 12px;
+    font-size: 12px;
   }
 }
