@@ -11,9 +11,6 @@ namespace DragoDeskHelp.Core.Entities
         public string RoomNumber { get; set; } = string.Empty;
 
         [Required]
-        public string AuthorName { get; set; } = string.Empty; 
-
-        [Required]
         public string Description { get; set; } = string.Empty;
 
         public TicketStatus Status { get; set; } = TicketStatus.New;
@@ -21,5 +18,9 @@ namespace DragoDeskHelp.Core.Entities
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         public string? AssigneeTelegramId { get; set; }
+
+        public Guid AuthorId { get; set; }
+
+        public User Author { get; set; } = null!;
     }
 }
