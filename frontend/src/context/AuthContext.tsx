@@ -36,6 +36,26 @@ function getStoredToken(): string | null {
   return localStorage.getItem('auth_token');
 }
 
+function getStoredUser(token: string): AuthUser | null {
+  try {
+    const decoded = jwtDecode<DecodedToken>(token);
+    const rawUser = localStorage.getItem('auth_user');
+    if (!rawUser) return null;
+
+    const { email, name, role } = JSON.parse(rawUser) as Pick<AuthUser, 'email' | 'name' | 'role'>;
+    return {
+      userId: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'],
+      email,
+      name,
+      role,
+    };
+  } catch {
+    localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
+    return null;
+  }
+}
+
 function parseUser(token: string, email: string, name: string, role: string): AuthUser {
   const decoded = jwtDecode<DecodedToken>(token);
   return {
@@ -51,17 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(storedToken);
   const [user, setUser] = useState<AuthUser | null>(() => {
     if (!storedToken) return null;
-    try {
-      const decoded = jwtDecode<DecodedToken>(storedToken);
-      return {
-        userId: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'],
-        email: '',
-        name: '',
-        role: '',
-      };
-    } catch {
-      return null;
-    }
+    return getStoredUser(storedToken);
   });
 
   const login = useCallback(async (googleCredential: string) => {
@@ -71,12 +81,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     });
 
     localStorage.setItem('auth_token', data.token);
+    localStorage.setItem('auth_user', JSON.stringify({ email: data.email, name: data.name, role: data.role }));
     setToken(data.token);
     setUser(parseUser(data.token, data.email, data.name, data.role));
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem('auth_token');
+    localStorage.removeItem('auth_user');
     setToken(null);
     setUser(null);
   }, []);
