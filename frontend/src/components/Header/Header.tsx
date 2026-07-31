@@ -1,29 +1,28 @@
 import { useAuth } from '../../context/AuthContext';
-import styles from './Header.module.css'
+import UserMenu from '../UserMenu/UserMenu';
+import styles from './Header.module.css';
 
 interface HeaderProps {
-  onCreateClick: () => void
+  onCreateClick: () => void;
+  showCreateButton?: boolean;
 }
 
-const Header: React.FC<HeaderProps> = ({ onCreateClick }) => {
-  const { user, logout } = useAuth();
+const Header: React.FC<HeaderProps> = ({ onCreateClick, showCreateButton = true }) => {
+  const { user } = useAuth();
 
   return (
     <header className={styles.header}>
       <h1 className={styles.title}>ADHD</h1>
       <div className={styles.headerRight}>
-        <button className={styles.createButton} onClick={onCreateClick} type="button">
-          Create Ticket
-        </button>
-        <span className={styles.userInfo}>
-          {user?.name ?? user?.email}
-        </span>
-        <button className={styles.logoutButton} onClick={logout} type="button">
-          Logout
-        </button>
+        {showCreateButton && (
+          <button className={styles.createButton} onClick={onCreateClick} type="button">
+            Create Ticket
+          </button>
+        )}
+        {user && <UserMenu />}
       </div>
     </header>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;
