@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import type { Ticket } from '../../models/ticket'
+import { useAuth } from '../../context/AuthContext'
 import BaseModal from '../BaseModal/BaseModal'
 import styles from './TicketDetailsModal.module.css'
 
 interface TicketDetailsModalProps {
   ticket: Ticket
   onClose: () => void
-  isAdmin?: boolean
   showToast: (message: string, type: 'success' | 'error') => void
   onRefreshNeeded: () => void
 }
@@ -14,11 +14,13 @@ interface TicketDetailsModalProps {
 const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
   ticket,
   onClose,
-  isAdmin = false,
   showToast,
   onRefreshNeeded,
 }) => {
+  const { user, token } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  const isUserAdmin = user?.role === 'Admin'
 
   const handleStatusUpdate = async (newStatus: number) => {
     setIsSubmitting(true)
@@ -27,7 +29,10 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
         `http://localhost:5220/api/Tickets/${ticket.id}/status`,
         {
           method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
           body: JSON.stringify({
             status: newStatus,
             assigneeId: 'System Admin',
@@ -52,9 +57,9 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
   const isNew = ticket.statusText === 'Нова'
   const isInProgress = ticket.statusText === 'В роботі'
 
-  const showInProgressBtn = isAdmin && isNew
-  const showResolveBtn = isAdmin && isInProgress
-  const showRejectBtn = isAdmin && (isNew || isInProgress)
+  const showInProgressBtn = isUserAdmin && isNew
+  const showResolveBtn = isUserAdmin && isInProgress
+  const showRejectBtn = isUserAdmin && (isNew || isInProgress)
 
   return (
     <BaseModal onClose={onClose}>

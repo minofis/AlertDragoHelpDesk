@@ -18,6 +18,8 @@ interface AuthResponse {
 
 interface DecodedToken {
   'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier': string;
+  'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'?: string;
+  role?: string;
   exp: number;
   iss: string;
   aud: string;
@@ -39,14 +41,25 @@ function getStoredToken(): string | null {
 function getStoredUser(token: string): AuthUser | null {
   try {
     const decoded = jwtDecode<DecodedToken>(token);
-    const rawUser = localStorage.getItem('auth_user');
-    if (!rawUser) return null;
 
-    const { email, name, role } = JSON.parse(rawUser) as Pick<AuthUser, 'email' | 'name' | 'role'>;
+    if (decoded.exp * 1000 < Date.now()) {
+      localStorage.removeItem('auth_token');
+      localStorage.removeItem('auth_user');
+      return null;
+    }
+
+    const rawUser = localStorage.getItem('auth_user');
+    const storedMeta = rawUser ? JSON.parse(rawUser) as Pick<AuthUser, 'email' | 'name' | 'role'> : null;
+
+    const role = decoded.role
+      || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
+      || storedMeta?.role
+      || 'Teacher';
+
     return {
       userId: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'],
-      email,
-      name,
+      email: storedMeta?.email ?? '',
+      name: storedMeta?.name ?? '',
       role,
     };
   } catch {
@@ -58,11 +71,15 @@ function getStoredUser(token: string): AuthUser | null {
 
 function parseUser(token: string, email: string, name: string, role: string): AuthUser {
   const decoded = jwtDecode<DecodedToken>(token);
+  const jwtRole = decoded.role
+    || decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
+    || role
+    || 'Teacher';
   return {
     userId: decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'],
     email,
     name,
-    role,
+    role: jwtRole,
   };
 }
 

@@ -1,3 +1,5 @@
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using DragoDeskHelp.Core.DTOs;
 using DragoDeskHelp.Core.Interfaces;
@@ -7,6 +9,7 @@ namespace DragoDeskHelp.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class TicketsController : ControllerBase
     {
         private readonly ITicketService _ticketService;
@@ -30,12 +33,17 @@ namespace DragoDeskHelp.API.Controllers
         [HttpPost]
         public async Task<ActionResult> CreateTicket(TicketRequestDto ticketDto)
         {
-            var newTicketId = await _ticketService.CreateTicketAsync(ticketDto);
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var authorId))
+                return Unauthorized();
+
+            var newTicketId = await _ticketService.CreateTicketAsync(ticketDto, authorId);
             
             return Ok(new { Message = "Заявка створена", Id = newTicketId });
         }
 
         [HttpPatch("{id}/status")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateTicketStatus(int id, [FromBody] TicketStatusUpdateDto dto)
         {
             var isUpdated = await _ticketService.UpdateTicketStatusAsync(id, dto.Status, dto.AssigneeId);

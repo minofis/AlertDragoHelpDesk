@@ -5,11 +5,7 @@ import type { OutletContextType } from '../Layout/Layout'
 import { apiFetch } from '../../api/client'
 import styles from './TicketsTable.module.css'
 
-interface TicketsTableProps {
-  isAdminView?: boolean
-}
-
-const TicketsTable: React.FC<TicketsTableProps> = ({ isAdminView: _isAdminView }) => {
+const TicketsTable: React.FC = () => {
   const {
     refreshKey,
     highlightedTicketId,

@@ -34,7 +34,6 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess, onError 
 
     const ticketData = {
       roomNumber: roomNumber,
-      authorName: 'Unknown',
       description: description,
     }
 
