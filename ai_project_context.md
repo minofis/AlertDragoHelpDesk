@@ -38,17 +38,21 @@
 │
 ├── frontend/
 │   └── src/
-│       ├── models/ticket.ts        # Ticket TypeScript type
+│       ├── api/client.ts            # Fetch wrapper with JWT Bearer injection
+│       ├── context/AuthContext.tsx   # Auth state: JWT token, user, Google login, role
+│       ├── models/ticket.ts         # Ticket TypeScript type
 │       ├── components/
-│       │   ├── BaseModal/           # Reusable modal overlay with scroll-lock
-│       │   ├── CreateTicketForm/    # Ticket creation form component
-│       │   ├── Header/              # Standalone header (logo + create button)
-│       │   ├── Layout/              # Shared layout: global header, modal/Toast logic, <Outlet />
-│       │   ├── TicketDetailsModal/  # Read-only ticket detail modal
-│       │   ├── TicketsTable/        # Ticket listing/filtering table (public & admin)
-│       │   └── Toast/               # Toast notification component
+│       │   ├── BaseModal/            # Reusable modal overlay with scroll-lock
+│       │   ├── CreateTicketForm/     # Ticket creation form component
+│       │   ├── LoginPage/            # Google OAuth sign-in page
+│       │   ├── Header/              # Top bar (logo + Create Ticket button + UserMenu)
+│       │   ├── Layout/              # Shared layout: Header, modal/Toast logic, <Outlet />
+│       │   ├── TicketDetailsModal/   # Ticket detail modal with admin status controls
+│       │   ├── TicketsTable/         # Unified ticket listing/filtering table
+│       │   ├── Toast/               # Toast notification component
+│       │   └── UserMenu/            # Avatar dropdown (name, role badge, logout)
 │       ├── hooks/useToast.ts        # Toast state management hook
-│       └── App.tsx                  # Root component: BrowserRouter, Routes (/ and /admin)
+│       └── App.tsx                  # Root: Google login gate → single-route Layout dashboard
 │
 ├── bot/
 │   ├── main.py                     # Bot runner (aiogram + FastAPI in one loop)
@@ -73,6 +77,7 @@
 - **Enum-based State Machine:** `TicketStatus` enum (New, InProgress, Resolved, Rejected) drives ticket lifecycle transitions.
 - **State Management:** No external library — React `useState` + `refreshKey` pattern for re-fetching after mutations. Shared state (refresh key, pagination, ticket selection) is held in the `Layout` component and passed to child routes via React Router's `<Outlet context>`.
 - **Dockerized Microservices:** 4 independent containers orchestrated via Docker Compose, communicating over HTTP.
+- **Authentication & Authorization (JWT + RBAC):** Google OAuth is used for sign-in; the backend issues a self-contained JWT with claims (`sub`, `role`). The `TicketsController` is class-level `[Authorize]`, and the `PATCH /{id}/status` endpoint has `[Authorize(Roles = "Admin")]`. The frontend stores the token in `localStorage`, attaches it via the `apiFetch` wrapper, and uses `AuthContext` to conditionally expose admin-only UI (status change buttons in `TicketDetailsModal`, role badge in `UserMenu` dropdown) based on the `role` claim decoded from the JWT.
 
 ---
 
@@ -82,10 +87,12 @@
 |--------|----------|-------------|
 | **Ticket** | `backend/.../Core/Entities/Ticket.cs` | Help desk ticket with room number, author, description, status, creation timestamp, and optional assignee Telegram ID |
 | **TicketStatus** (enum) | `backend/.../Core/Enums/TicketStatus.cs` | Lifecycle states: `New` (0), `InProgress` (1), `Resolved` (2), `Rejected` (3) |
-| **TicketRequestDto** | `backend/.../Core/DTOs/` | Payload for creating a ticket (RoomNumber, AuthorName, Description) |
+| **TicketRequestDto** | `backend/.../Core/DTOs/` | Payload for creating a ticket (RoomNumber, Description). Author is extracted server-side from the JWT `sub` claim — no client-supplied author field. |
 | **TicketResponseDto** | `backend/.../Core/DTOs/` | API response shape with id, room, author, description, localized status text, Kyiv-time timestamp, assignee |
 | **TicketStatusUpdateDto** | `backend/.../Core/DTOs/` | Payload for PATCH status updates (new status + optional assignee) |
 | **PagedResponse\<T\>** | `backend/.../Core/DTOs/` | Generic paginated response wrapper |
+| **AuthRequestDto** | `backend/.../Core/DTOs/` | Google OAuth payload (IdToken) |
+| **AuthResponseDto** | `backend/.../Core/DTOs/` | Login response (JWT Token, Email, Name, Role) |
 
 ---
 
