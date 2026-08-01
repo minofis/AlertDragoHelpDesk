@@ -72,20 +72,11 @@ namespace DragoDeskHelp.BLL.Services
             };
         }
 
-        public async Task<string> CreateTicketAsync(TicketRequestDto ticketDto)
+        public async Task<string> CreateTicketAsync(TicketRequestDto ticketDto, Guid authorId)
         {
-            var user = await _context.Users.FirstOrDefaultAsync();
+            var user = await _context.Users.FindAsync(authorId);
             if (user == null)
-            {
-                user = new User
-                {
-                    Id = Guid.NewGuid(),
-                    Email = "default@drago.local",
-                    Name = ticketDto.AuthorName,
-                    Role = UserRole.Teacher
-                };
-                _context.Users.Add(user);
-            }
+                throw new UnauthorizedAccessException("User not found.");
 
             var ticket = new Ticket
             {

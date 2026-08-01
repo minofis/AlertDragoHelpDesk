@@ -9,7 +9,7 @@ namespace DragoDeskHelp.Core.Interfaces
 
         Task<TicketResponseDto?> GetTicketByIdAsync(int id);
 
-        Task<string> CreateTicketAsync(TicketRequestDto ticketDto);
+        Task<string> CreateTicketAsync(TicketRequestDto ticketDto, Guid authorId);
         
         Task<bool> UpdateTicketStatusAsync(int id, TicketStatus newStatus, string? assigneeId = null);
     }

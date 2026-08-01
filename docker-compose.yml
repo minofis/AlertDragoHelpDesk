@@ -28,6 +28,7 @@ services:
       - "5001:5001"
     environment:
       - ASPNETCORE_URLS=http://+:5001
+      - AdminEmail=${ADMIN_EMAIL}
       - ConnectionStrings__ApplicationDbContext=Host=postgresDb;Port=5432;Database=DragoDeskHelpDb;Username=root;Password=root
     depends_on:
       postgresDb:

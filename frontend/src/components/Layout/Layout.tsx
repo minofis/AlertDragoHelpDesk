@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
+import { Outlet } from 'react-router-dom'
 import type { Ticket } from '../../models/ticket'
 import { useToast } from '../../hooks/useToast'
 import { useSmartPolling } from '../../hooks/useSmartPolling'
@@ -23,9 +23,6 @@ export interface OutletContextType {
 }
 
 function Layout() {
-  const location = useLocation()
-  const isAdminView = location.pathname === '/admin'
-
   const [refreshKey, setRefreshKey] = useState(0)
   const [highlightedTicketId, setHighlightedTicketId] = useState<number | null>(null)
   const [pageNumber, setPageNumber] = useState(1)
@@ -80,7 +77,6 @@ function Layout() {
     <div className={styles.layout}>
       <Header
         onCreateClick={handleCreateClick}
-        showCreateButton={!isAdminView}
       />
       <div className={styles.outlet}>
         <Outlet context={outletContext} />
@@ -105,7 +101,6 @@ function Layout() {
         <TicketDetailsModal
           ticket={activeTicket}
           onClose={() => setSelectedTicketId(null)}
-          isAdmin={isAdminView}
           showToast={showToast}
           onRefreshNeeded={() => setRefreshKey((key) => key + 1)}
         />

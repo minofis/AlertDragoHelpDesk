@@ -8,9 +8,6 @@ namespace DragoDeskHelp.Core.DTOs
         public string RoomNumber { get; set; } = string.Empty;
 
         [Required]
-        public string AuthorName { get; set; } = string.Empty; 
-
-        [Required]
         public string Description { get; set; } = string.Empty;
     }
 }

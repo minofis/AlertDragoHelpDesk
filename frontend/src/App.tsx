@@ -9,7 +9,6 @@ function AppRoutes() {
     <Routes>
       <Route element={<Layout />}>
         <Route index element={<TicketsTable />} />
-        <Route path="admin" element={<TicketsTable isAdminView />} />
       </Route>
     </Routes>
   )

@@ -37,8 +37,11 @@ namespace DragoDeskHelp.BLL.Services
             if (!email.EndsWith("@udu.edu.ua") && !email.EndsWith("@npu.edu.ua"))
                 throw new UnauthorizedAccessException("Only @udu.edu.ua and @npu.edu.ua email domains are allowed.");
 
+            var adminEmail = _configuration["AdminEmail"] ?? string.Empty;
             var adminEmails = _configuration.GetSection("AllowedAdminEmails").Get<string[]>() ?? Array.Empty<string>();
-            var role = adminEmails.Contains(email) ? UserRole.Admin : UserRole.Teacher;
+            var isAdmin = (!string.IsNullOrEmpty(adminEmail) && email.Equals(adminEmail, StringComparison.OrdinalIgnoreCase))
+                          || adminEmails.Any(a => email.Equals(a, StringComparison.OrdinalIgnoreCase));
+            var role = isAdmin ? UserRole.Admin : UserRole.Teacher;
 
             var user = await _context.Users.FirstOrDefaultAsync(u => u.Email == email);
 
@@ -87,7 +90,8 @@ namespace DragoDeskHelp.BLL.Services
             {
                 new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
                 new Claim(ClaimTypes.Email, user.Email),
-                new Claim(ClaimTypes.Role, user.Role.ToString())
+                new Claim(ClaimTypes.Role, user.Role.ToString()),
+                new Claim("role", user.Role.ToString())
             };
 
             var token = new JwtSecurityToken(
