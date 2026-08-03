@@ -3,6 +3,7 @@ import type { Ticket } from '../../models/ticket'
 import { useAuth } from '../../context/AuthContext'
 import BaseModal from '../BaseModal/BaseModal'
 import StatusBadge from '../StatusBadge/StatusBadge'
+import { reorderFullName } from '../../utils/nameFormatters'
 import styles from './TicketDetailsModal.module.css'
 
 interface TicketDetailsModalProps {
@@ -76,7 +77,7 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
         </div>
         <div className={styles.field}>
           <span className={styles.label}>Author</span>
-          <span className={styles.value}>{ticket.authorName}</span>
+          <span className={styles.value}>{reorderFullName(ticket.authorName)}</span>
         </div>
         <div className={styles.field}>
           <span className={styles.label}>Date</span>

@@ -1,14 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
+import { formatShortName } from '../../utils/nameFormatters';
 import styles from './UserMenu.module.css';
-
-function formatInitials(fullName: string): string {
-  const parts = fullName.trim().split(/\s+/);
-  if (parts.length === 0) return '';
-  if (parts.length === 1) return parts[0];
-  const initials = parts.slice(0, -1).map(p => p[0] + '.').join(' ');
-  return initials + ' ' + parts[parts.length - 1];
-}
 
 function getAvatarLetter(name: string): string {
   return name.trim().charAt(0).toUpperCase() || '?';
@@ -35,7 +28,7 @@ const UserMenu: React.FC = () => {
   }, [isDropdownOpen]);
 
   const displayName = user?.name || user?.email || 'User';
-  const formattedName = formatInitials(displayName);
+  const formattedName = formatShortName(displayName);
   const avatarLetter = getAvatarLetter(displayName);
 
   const toggle = () => setIsDropdownOpen(prev => !prev);
