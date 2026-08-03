@@ -4,6 +4,7 @@ import type { Ticket, PagedResponse } from '../../models/ticket'
 import type { OutletContextType } from '../Layout/Layout'
 import { apiFetch } from '../../api/client'
 import StatusBadge from '../StatusBadge/StatusBadge'
+import { formatShortName } from '../../utils/nameFormatters'
 import styles from './TicketsTable.module.css'
 
 const TicketsTable: React.FC = () => {
@@ -73,7 +74,7 @@ const TicketsTable: React.FC = () => {
       >
         <td className={`${styles.cell} ${styles.colId}`}>{ticket.id}</td>
         <td className={`${styles.cell} ${styles.colRoom}`}>{ticket.roomNumber}</td>
-        <td className={`${styles.cell} ${styles.colAuthor}`}>{ticket.authorName}</td>
+        <td className={`${styles.cell} ${styles.colAuthor}`}>{formatShortName(ticket.authorName)}</td>
         <td className={`${styles.cell} ${styles.colDescription}`}>{ticket.description}</td>
         <td className={`${styles.cell} ${styles.colDate}`}>{ticket.createdAt}</td>
         <td className={`${styles.cell} ${styles.colStatus}`}><StatusBadge status={ticket.statusText} /></td>
