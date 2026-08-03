@@ -66,7 +66,7 @@ const UserMenu: React.FC = () => {
         <div className={styles.dropdown}>
           <span className={styles.dropdownName}>{formattedName}</span>
           <span className={user?.role === 'Admin' ? styles.roleBadgeAdmin : styles.roleBadgeTeacher}>
-            {user?.role === 'Admin' ? 'Admin' : 'Teacher'}
+            {user?.role === 'Admin' ? 'АДМІН' : 'ВИКЛАДАЧ'}
           </span>
           <div className={styles.dropdownDivider} />
           <button
@@ -74,7 +74,7 @@ const UserMenu: React.FC = () => {
             onClick={() => { logout(); setIsDropdownOpen(false); }}
             type="button"
           >
-            Logout
+            Вийти
           </button>
         </div>
       )}

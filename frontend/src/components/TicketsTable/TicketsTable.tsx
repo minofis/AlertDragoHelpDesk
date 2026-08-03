@@ -62,7 +62,7 @@ const TicketsTable: React.FC = () => {
     if (tickets.length === 0) {
       return (
         <tr>
-          <td className={styles.emptyState} colSpan={6}>No tickets yet</td>
+          <td className={styles.emptyState} colSpan={6}>Ще немає жодної заявки</td>
         </tr>
       )
     }
@@ -84,18 +84,18 @@ const TicketsTable: React.FC = () => {
 
   return (
     <>
-      <h2 className={styles.title}>All Tickets</h2>
+      <h2 className={styles.title}>Усі заявки</h2>
       <div className={styles.wrapper}>
         <div className={styles.tableScrollWrapper}>
         <table className={styles.table}>
           <thead className={styles.thead}>
             <tr>
-              <th className={`${styles.headerCell} ${styles.colId}`}>ID</th>
-              <th className={`${styles.headerCell} ${styles.colRoom}`}>Room number</th>
-              <th className={`${styles.headerCell} ${styles.colAuthor}`}>Author</th>
-              <th className={`${styles.headerCell} ${styles.colDescription}`}>Description</th>
-              <th className={`${styles.headerCell} ${styles.colDate}`}>Date</th>
-              <th className={`${styles.headerCell} ${styles.colStatus}`}>Status</th>
+              <th className={`${styles.headerCell} ${styles.colId}`}>№</th>
+              <th className={`${styles.headerCell} ${styles.colRoom}`}>Аудиторія</th>
+              <th className={`${styles.headerCell} ${styles.colAuthor}`}>Заявник</th>
+              <th className={`${styles.headerCell} ${styles.colDescription}`}>Опис проблеми</th>
+              <th className={`${styles.headerCell} ${styles.colDate}`}>Дата</th>
+              <th className={`${styles.headerCell} ${styles.colStatus}`}>Статус</th>
             </tr>
           </thead>
           <tbody>
@@ -115,17 +115,17 @@ const TicketsTable: React.FC = () => {
           disabled={pageNumber === 1}
           onClick={onPrevPage}
         >
-          &lt; Prev
+          &lt; Попередня
         </button>
         <span className={styles.paginationInfo}>
-          Page {pageNumber} of {totalPages}
+          Сторінка {pageNumber} з {totalPages}
         </span>
         <button
           className={styles.paginationButton}
           disabled={pageNumber === totalPages}
           onClick={onNextPage}
         >
-          Next &gt;
+          Наступна &gt;
         </button>
         </div>
       </div>

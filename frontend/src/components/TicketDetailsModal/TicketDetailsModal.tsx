@@ -46,11 +46,11 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
         throw new Error(`Request failed with status ${response.status}`)
       }
 
-      showToast('Ticket status updated successfully!', 'success')
+      showToast('Статус заявки успішно оновлено!', 'success')
       onRefreshNeeded()
       onClose()
     } catch {
-      showToast('Failed to update ticket status. Please try again.', 'error')
+      showToast('Не вдалося оновити статус заявки. Спробуйте ще раз.', 'error')
     } finally {
       setIsSubmitting(false)
     }
@@ -68,31 +68,31 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
   return (
     <BaseModal onClose={onClose}>
       <div className={styles.headerRow}>
-        <h2 className={styles.title}>Ticket #{ticket.id}</h2>
+        <h2 className={styles.title}>Заявка #{ticket.id}</h2>
         <StatusBadge status={ticket.statusText} />
       </div>
 
       <div className={styles.content}>
         <div className={styles.field}>
-          <span className={styles.label}>Room</span>
+          <span className={styles.label}>АУДИТОРІЯ</span>
           <span className={styles.value}>{ticket.roomNumber}</span>
         </div>
         <div className={styles.field}>
-          <span className={styles.label}>Author</span>
+          <span className={styles.label}>ЗАЯВНИК</span>
           <span className={styles.value}>{reorderFullName(ticket.authorName)}</span>
         </div>
         <div className={styles.field}>
-          <span className={styles.label}>Date</span>
+          <span className={styles.label}>ДАТА</span>
           <span className={styles.value}>{ticket.createdAt}</span>
         </div>
         <div className={styles.field}>
-          <span className={styles.label}>Assignee</span>
+          <span className={styles.label}>ВИКОНАВЕЦЬ</span>
           <span className={styles.value}>
             {ticket.assigneeId !== null ? ticket.assigneeId : '-'}
           </span>
         </div>
         <div className={styles.descriptionSection}>
-          <span className={styles.label}>Description</span>
+          <span className={styles.label}>ОПИС ПРОБЛЕМИ</span>
           <p className={styles.descriptionText}>{ticket.description}</p>
         </div>
       </div>
@@ -106,7 +106,7 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
               onClick={() => handleStatusUpdate(1)}
               type="button"
             >
-              Take in Progress
+              Взяти в роботу
             </button>
           )}
           {showResolveBtn && (
@@ -116,7 +116,7 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
               onClick={() => handleStatusUpdate(2)}
               type="button"
             >
-              Resolve
+              Виконати
             </button>
           )}
           {showRejectBtn && (
@@ -126,7 +126,7 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
               onClick={() => handleStatusUpdate(3)}
               type="button"
             >
-              Reject
+              Відхилити
             </button>
           )}
         </div>
