@@ -89,10 +89,10 @@ function Layout() {
               setRefreshKey((key) => key + 1)
               setHighlightedTicketId(ticketId)
               setIsCreateModalOpen(false)
-              showToast('Ticket successfully sent!', 'success')
+              showToast('Заявку успішно створено!', 'success')
             }}
             onError={() => {
-              showToast('Failed to create ticket. Please try again.', 'error')
+              showToast('Не вдалося створити заявку. Спробуйте ще раз.', 'error')
             }}
           />
         </BaseModal>

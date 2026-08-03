@@ -24,8 +24,8 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess, onError 
 
     if (roomEmpty || descEmpty || roomInvalid) {
       setValidationErrors({
-        roomNumber: roomEmpty ? 'Required field' : roomInvalid ? 'Please select a valid room from the list' : undefined,
-        description: descEmpty ? 'Required field' : undefined,
+        roomNumber: roomEmpty ? "Обов'язкове поле" : roomInvalid ? 'Будь ласка, виберіть дійсну аудиторію зі списку' : undefined,
+        description: descEmpty ? "Обов'язкове поле" : undefined,
       })
       return
     }
@@ -58,11 +58,11 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess, onError 
 
   return (
     <div className={styles.container}>
-      <h1 className={styles.title}>Create a new Ticket</h1>
+      <h1 className={styles.title}>Створити нову заявку</h1>
       <form className={styles.form} onSubmit={handleSubmit}>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="roomNumber">
-            Room number
+            Аудиторія
           </label>
           <div className={styles.fieldWrapper}>
             <input
@@ -88,7 +88,7 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess, onError 
         </div>
         <div className={styles.field}>
           <label className={styles.label} htmlFor="description">
-            Description
+            Опис проблеми
           </label>
           <div className={styles.fieldWrapper}>
             <input
@@ -105,7 +105,7 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess, onError 
           </div>
         </div>
         <button className={styles.submitButton} type="submit" disabled={isLoading}>
-          {isLoading ? 'Creating...' : 'Create'}
+          {isLoading ? 'Створення...' : 'Створити'}
         </button>
       </form>
     </div>

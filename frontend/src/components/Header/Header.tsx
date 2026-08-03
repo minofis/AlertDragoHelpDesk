@@ -11,7 +11,7 @@ const Header: React.FC<HeaderProps> = ({ onCreateClick }) => {
       <h1 className={styles.title}>ADHD</h1>
       <div className={styles.headerRight}>
         <button className={styles.createButton} onClick={onCreateClick} type="button">
-          Create Ticket
+          Подати заявку
         </button>
         <UserMenu />
       </div>

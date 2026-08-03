@@ -11,14 +11,14 @@ function LoginPage() {
   const handleSuccess = async (credentialResponse: { credential?: string }) => {
     const credential = credentialResponse.credential;
     if (!credential) {
-      showToast('Google authentication failed. Please try again.', 'error');
+      showToast('Помилка автентифікації Google. Спробуйте ще раз.', 'error');
       return;
     }
 
     try {
       await login(credential);
     } catch (err) {
-      const message = err instanceof Error ? err.message : 'Login failed. Please try again.';
+      const message = err instanceof Error ? err.message : 'Помилка входу. Спробуйте ще раз.';
       showToast(message, 'error');
     }
   };
@@ -31,7 +31,7 @@ function LoginPage() {
         <div className={styles.googleButtonWrapper}>
           <GoogleLogin
             onSuccess={handleSuccess}
-            onError={() => showToast('Google authentication failed.', 'error')}
+            onError={() => showToast('Помилка автентифікації Google.', 'error')}
           />
         </div>
       </div>
