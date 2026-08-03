@@ -58,6 +58,8 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
 
   const isNew = ticket.statusText === 'Нова'
   const isInProgress = ticket.statusText === 'В роботі'
+  const isCompleted = ticket.statusText === 'Виконано'
+  const isRejected = ticket.statusText === 'Відхилено'
 
   const showInProgressBtn = isUserAdmin && isNew
   const showResolveBtn = isUserAdmin && isInProgress
@@ -95,7 +97,7 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
         </div>
       </div>
 
-      {(showInProgressBtn || showResolveBtn || showRejectBtn) && (
+      {isUserAdmin && (showInProgressBtn || showResolveBtn || showRejectBtn) && (
         <div className={styles.actions}>
           {showInProgressBtn && (
             <button
@@ -127,6 +129,16 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
               Reject
             </button>
           )}
+        </div>
+      )}
+      {isUserAdmin && isCompleted && (
+        <div className={styles.actions}>
+          <div className={`${styles.statusBanner} ${styles.resolvedBanner}`}>Заявка виконана</div>
+        </div>
+      )}
+      {isUserAdmin && isRejected && (
+        <div className={styles.actions}>
+          <div className={`${styles.statusBanner} ${styles.rejectedBanner}`}>Заявка відхилена</div>
         </div>
       )}
     </BaseModal>
