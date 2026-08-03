@@ -3,6 +3,7 @@ import { useOutletContext } from 'react-router-dom'
 import type { Ticket, PagedResponse } from '../../models/ticket'
 import type { OutletContextType } from '../Layout/Layout'
 import { apiFetch } from '../../api/client'
+import StatusBadge from '../StatusBadge/StatusBadge'
 import styles from './TicketsTable.module.css'
 
 const TicketsTable: React.FC = () => {
@@ -75,7 +76,7 @@ const TicketsTable: React.FC = () => {
         <td className={`${styles.cell} ${styles.colAuthor}`}>{ticket.authorName}</td>
         <td className={`${styles.cell} ${styles.colDescription}`}>{ticket.description}</td>
         <td className={`${styles.cell} ${styles.colDate}`}>{ticket.createdAt}</td>
-        <td className={`${styles.cell} ${styles.colStatus}`}>{ticket.statusText}</td>
+        <td className={`${styles.cell} ${styles.colStatus}`}><StatusBadge status={ticket.statusText} /></td>
       </tr>
     ))
   })()
