@@ -2,6 +2,7 @@ import { useState } from 'react'
 import type { Ticket } from '../../models/ticket'
 import { useAuth } from '../../context/AuthContext'
 import BaseModal from '../BaseModal/BaseModal'
+import StatusBadge from '../StatusBadge/StatusBadge'
 import styles from './TicketDetailsModal.module.css'
 
 interface TicketDetailsModalProps {
@@ -63,7 +64,10 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
 
   return (
     <BaseModal onClose={onClose}>
-      <h2 className={styles.title}>Ticket #{ticket.id}</h2>
+      <div className={styles.headerRow}>
+        <h2 className={styles.title}>Ticket #{ticket.id}</h2>
+        <StatusBadge status={ticket.statusText} />
+      </div>
 
       <div className={styles.content}>
         <div className={styles.field}>
@@ -73,10 +77,6 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
         <div className={styles.field}>
           <span className={styles.label}>Author</span>
           <span className={styles.value}>{ticket.authorName}</span>
-        </div>
-        <div className={styles.field}>
-          <span className={styles.label}>Status</span>
-          <span className={styles.value}>{ticket.statusText}</span>
         </div>
         <div className={styles.field}>
           <span className={styles.label}>Date</span>
