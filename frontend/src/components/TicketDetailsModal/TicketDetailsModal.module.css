@@ -110,6 +110,27 @@
   background-color: #dcdcdc;
 }
 
+.statusBanner {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex: 1;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.resolvedBanner {
+  background-color: #ecfdf5;
+  color: #065f46;
+}
+
+.rejectedBanner {
+  background-color: #fef2f2;
+  color: #991b1b;
+}
+
 @media (max-width: 380px) {
   .field {
     grid-template-columns: 1fr;
