@@ -121,6 +121,24 @@ namespace DragoDeskHelp.BLL.Services
                 ticket.AssigneeTelegramId = assigneeId;
             }
 
+            var statusText = newStatus switch
+            {
+                TicketStatus.New => "Нова",
+                TicketStatus.InProgress => "В роботі",
+                TicketStatus.Resolved => "Виконано",
+                TicketStatus.Rejected => "Відхилено",
+                _ => "Невідомо"
+            };
+
+            var notification = new Notification
+            {
+                UserId = ticket.AuthorId.ToString(),
+                Message = $"Статус вашої заявки №{id} змінено на '{statusText}'",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            _context.Notifications.Add(notification);
+
             await _context.SaveChangesAsync();
             return true;
         }
