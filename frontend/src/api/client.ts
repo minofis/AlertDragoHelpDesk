@@ -1,3 +1,5 @@
+import type { NotificationResponseDto } from '../models/notification';
+
 const BASE_URL = import.meta.env.VITE_API_URL ?? '';
 
 export async function apiFetch<T = unknown>(
@@ -27,4 +29,13 @@ export async function apiFetch<T = unknown>(
   }
 
   return response.json() as Promise<T>;
+}
+
+export async function getNotifications(unreadOnly: boolean = false): Promise<NotificationResponseDto[]> {
+  const query = unreadOnly ? '?unreadOnly=true' : '';
+  return apiFetch<NotificationResponseDto[]>(`/api/notifications${query}`);
+}
+
+export async function markNotificationAsRead(id: string): Promise<void> {
+  await apiFetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
 }

@@ -1,0 +1,164 @@
+.container {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 700;
+  color: #222;
+}
+
+.markAllButton {
+  padding: 6px 14px;
+  border: 1px solid #1a73e8;
+  border-radius: 6px;
+  background: none;
+  color: #1a73e8;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.15s ease, color 0.15s ease;
+  margin-right: 48px;
+}
+
+.markAllButton:hover {
+  background-color: #1a73e8;
+  color: #ffffff;
+}
+
+.tabs {
+  display: flex;
+  gap: 0;
+  border-bottom: 2px solid #e8e8e8;
+  margin-bottom: 12px;
+}
+
+.tab {
+  padding: 8px 20px;
+  border: none;
+  background: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: #888;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -2px;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.tab:hover {
+  color: #444;
+}
+
+.tabActive {
+  color: #1a73e8;
+  border-bottom-color: #1a73e8;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  max-height: 400px;
+  overflow-y: auto;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.empty {
+  text-align: center;
+  padding: 24px 0;
+  color: #888;
+  font-size: 14px;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 24px;
+  border-bottom: 1px solid #f0f0f0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.itemUnread {
+  background-color: #f5f9ff;
+  border-radius: 4px;
+}
+
+.itemContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.message {
+  margin: 0 0 4px;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.time {
+  font-size: 12px;
+  color: #999;
+}
+
+.readButton {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d0d0d0;
+  border-radius: 50%;
+  background: none;
+  cursor: pointer;
+  position: relative;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+  margin-top: 2px;
+}
+
+.readButton::after {
+  content: '';
+  position: absolute;
+  top: 5px;
+  left: 9px;
+  width: 6px;
+  height: 11px;
+  border: solid #888;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+.readButton:hover {
+  border-color: #1a73e8;
+  background-color: #e8f0fe;
+}
+
+.readButton:hover::after {
+  border-color: #1a73e8;
+}
+
+@media (max-width: 600px) {
+  .item {
+    padding: 10px 20px;
+  }
+
+  .list {
+    max-height: 320px;
+  }
+}

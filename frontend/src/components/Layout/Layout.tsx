@@ -1,12 +1,15 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Outlet } from 'react-router-dom'
 import type { Ticket } from '../../models/ticket'
+import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../hooks/useToast'
 import { useSmartPolling } from '../../hooks/useSmartPolling'
+import { getNotifications } from '../../api/client'
 import Header from '../Header/Header'
 import BaseModal from '../BaseModal/BaseModal'
 import CreateTicketForm from '../CreateTicketForm/CreateTicketForm'
 import TicketDetailsModal from '../TicketDetailsModal/TicketDetailsModal'
+import NotificationModal from '../NotificationModal/NotificationModal'
 import Toast from '../Toast/Toast'
 import styles from './Layout.module.css'
 
@@ -30,9 +33,26 @@ function Layout() {
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null)
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false)
+  const [unreadCount, setUnreadCount] = useState(0)
   const { toast, showToast } = useToast()
+  const { user } = useAuth()
 
   useSmartPolling(() => setRefreshKey((prev) => prev + 1), 60000)
+
+  const fetchUnreadCount = async () => {
+    try {
+      const notifications = await getNotifications(true)
+      setUnreadCount(notifications.length)
+    } catch {
+      /* silently ignore */
+    }
+  }
+
+  useSmartPolling(() => {
+    if (!user) return
+    fetchUnreadCount()
+  }, 60000)
 
   useEffect(() => {
     if (highlightedTicketId === null) return
@@ -77,6 +97,8 @@ function Layout() {
     <div className={styles.layout}>
       <Header
         onCreateClick={handleCreateClick}
+        unreadCount={unreadCount}
+        onNotificationsClick={() => setIsNotificationsModalOpen(true)}
       />
       <div className={styles.outlet}>
         <Outlet context={outletContext} />
@@ -103,6 +125,15 @@ function Layout() {
           onClose={() => setSelectedTicketId(null)}
           showToast={showToast}
           onRefreshNeeded={() => setRefreshKey((key) => key + 1)}
+        />
+      )}
+      {isNotificationsModalOpen && (
+        <NotificationModal
+          onClose={() => {
+            setIsNotificationsModalOpen(false)
+            fetchUnreadCount()
+          }}
+          onCountChange={fetchUnreadCount}
         />
       )}
       <Toast toast={toast} />
