@@ -22,6 +22,7 @@ builder.Services.AddHttpClient<ITelegramBotService, TelegramBotService>(client =
 
 builder.Services.AddScoped<ITicketService, TicketService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<INotificationService, NotificationService>();
 
 builder.Services.AddCors(options =>
 {

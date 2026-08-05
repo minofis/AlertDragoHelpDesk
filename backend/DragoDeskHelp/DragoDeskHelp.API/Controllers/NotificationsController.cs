@@ -1,9 +1,8 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using DragoDeskHelp.Core.DTOs;
-using DragoDeskHelp.DAL;
+using DragoDeskHelp.Core.Interfaces;
 
 namespace DragoDeskHelp.API.Controllers
 {
@@ -12,64 +11,69 @@ namespace DragoDeskHelp.API.Controllers
     [Authorize]
     public class NotificationsController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly INotificationService _notificationService;
 
-        public NotificationsController(AppDbContext context)
+        public NotificationsController(INotificationService notificationService)
         {
-            _context = context;
+            _notificationService = notificationService;
         }
 
+        private string? GetUserId() =>
+            User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<NotificationResponseDto>>> GetNotifications([FromQuery] bool unreadOnly = false)
+        public async Task<ActionResult<PagedResponse<NotificationResponseDto>>> GetNotifications(
+            [FromQuery] bool unreadOnly = false,
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 20)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim))
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
-            var kyivTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv");
+            var response = await _notificationService.GetNotificationsAsync(
+                userId, unreadOnly, pageNumber, pageSize);
 
-            var query = _context.Notifications
-                .Where(n => n.UserId == userIdClaim);
+            return Ok(response);
+        }
 
-            if (unreadOnly)
-            {
-                query = query.Where(n => !n.IsRead);
-            }
+        [HttpGet("unread-count")]
+        public async Task<ActionResult<UnreadCountResponseDto>> GetUnreadCount()
+        {
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
 
-            var notifications = await query
-                .OrderByDescending(n => n.CreatedAt)
-                .ToListAsync();
+            var count = await _notificationService.GetUnreadCountAsync(userId);
 
-            var result = notifications.Select(n => new NotificationResponseDto
-            {
-                Id = n.Id,
-                UserId = n.UserId,
-                Message = n.Message,
-                IsRead = n.IsRead,
-                CreatedAt = TimeZoneInfo.ConvertTimeFromUtc(n.CreatedAt, kyivTimeZone).ToString("dd.MM.yyyy HH:mm")
-            });
-
-            return Ok(result);
+            return Ok(new UnreadCountResponseDto { Count = count });
         }
 
         [HttpPatch("{id}/read")]
         public async Task<IActionResult> MarkAsRead(Guid id)
         {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (string.IsNullOrEmpty(userIdClaim))
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId))
                 return Unauthorized();
 
-            var notification = await _context.Notifications.FindAsync(id);
-            if (notification == null)
+            var success = await _notificationService.MarkAsReadAsync(id, userId);
+
+            if (!success)
                 return NotFound(new { Message = "Сповіщення не знайдено." });
 
-            if (notification.UserId != userIdClaim)
-                return Forbid();
-
-            notification.IsRead = true;
-            await _context.SaveChangesAsync();
-
             return Ok(new { Message = "Сповіщення позначено як прочитане." });
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> DeleteReadNotifications()
+        {
+            var userId = GetUserId();
+            if (string.IsNullOrEmpty(userId))
+                return Unauthorized();
+
+            await _notificationService.DeleteReadNotificationsAsync(userId);
+
+            return NoContent();
         }
     }
 }
