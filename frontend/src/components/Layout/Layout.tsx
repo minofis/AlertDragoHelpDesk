@@ -1,10 +1,10 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 import type { Ticket } from '../../models/ticket'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../hooks/useToast'
 import { useSmartPolling } from '../../hooks/useSmartPolling'
-import { getNotifications } from '../../api/client'
+import { getUnreadNotificationCount } from '../../api/client'
 import Header from '../Header/Header'
 import BaseModal from '../BaseModal/BaseModal'
 import CreateTicketForm from '../CreateTicketForm/CreateTicketForm'
@@ -35,6 +35,8 @@ function Layout() {
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
+  const [pollingSignal, setPollingSignal] = useState(0)
+  const prevUnreadCountRef = useRef(0)
   const { toast, showToast } = useToast()
   const { user } = useAuth()
 
@@ -42,8 +44,12 @@ function Layout() {
 
   const fetchUnreadCount = async () => {
     try {
-      const notifications = await getNotifications(true)
-      setUnreadCount(notifications.length)
+      const data = await getUnreadNotificationCount()
+      if (data.count > prevUnreadCountRef.current) {
+        setPollingSignal((prev) => prev + 1)
+      }
+      prevUnreadCountRef.current = data.count
+      setUnreadCount(data.count)
     } catch {
       /* silently ignore */
     }
@@ -134,6 +140,7 @@ function Layout() {
             fetchUnreadCount()
           }}
           onCountChange={fetchUnreadCount}
+          pollingSignal={pollingSignal}
         />
       )}
       <Toast toast={toast} />
