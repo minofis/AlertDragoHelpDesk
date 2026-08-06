@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { Ticket } from '../../models/ticket'
 import { useAuth } from '../../context/AuthContext'
+import { updateTicketStatus } from '../../api/client'
 import BaseModal from '../BaseModal/BaseModal'
 import StatusBadge from '../StatusBadge/StatusBadge'
 import { reorderFullName } from '../../utils/nameFormatters'
@@ -19,7 +20,7 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
   showToast,
   onRefreshNeeded,
 }) => {
-  const { user, token } = useAuth()
+  const { user } = useAuth()
   const [isSubmitting, setIsSubmitting] = useState(false)
 
   const isUserAdmin = user?.role === 'Admin'
@@ -27,25 +28,7 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
   const handleStatusUpdate = async (newStatus: number) => {
     setIsSubmitting(true)
     try {
-      const response = await fetch(
-        `http://localhost:5220/api/Tickets/${ticket.id}/status`,
-        {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            status: newStatus,
-            assigneeId: 'System Admin',
-          }),
-        }
-      )
-
-      if (!response.ok) {
-        throw new Error(`Request failed with status ${response.status}`)
-      }
-
+      await updateTicketStatus(ticket.id, newStatus, 'System Admin')
       showToast('Статус заявки успішно оновлено!', 'success')
       onRefreshNeeded()
       onClose()

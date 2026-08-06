@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { apiFetch } from '../../api/client'
+import { createTicket } from '../../api/client'
 import styles from './CreateTicketForm.module.css'
 
 const VALID_ROOMS = ['101', '102', '103', '201', '202']
@@ -40,10 +40,7 @@ const CreateTicketForm: React.FC<CreateTicketFormProps> = ({ onSuccess, onError 
     setIsLoading(true)
 
     try {
-      const newTicket = await apiFetch<{ id: number }>('/api/tickets', {
-        method: 'POST',
-        body: JSON.stringify(ticketData),
-      })
+      const newTicket = await createTicket(ticketData)
       setRoomNumber('')
       setDescription('')
       console.log('Ticket created successfully', newTicket)

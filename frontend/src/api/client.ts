@@ -1,4 +1,5 @@
 import type { NotificationResponseDto, PagedResponse } from '../models/notification';
+import type { Ticket } from '../models/ticket';
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? '';
 
@@ -59,4 +60,22 @@ export async function markNotificationAsRead(id: string): Promise<void> {
 
 export async function clearReadNotifications(): Promise<void> {
   await apiFetch('/api/notifications', { method: 'DELETE' });
+}
+
+export async function getTickets(pageNumber: number): Promise<PagedResponse<Ticket>> {
+  return apiFetch<PagedResponse<Ticket>>(`/api/Tickets?pageNumber=${pageNumber}`);
+}
+
+export async function createTicket(ticketData: { roomNumber: string; description: string }): Promise<{ id: number }> {
+  return apiFetch<{ id: number }>('/api/tickets', {
+    method: 'POST',
+    body: JSON.stringify(ticketData),
+  });
+}
+
+export async function updateTicketStatus(ticketId: number, status: number, assigneeId: string): Promise<void> {
+  await apiFetch(`/api/Tickets/${ticketId}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status, assigneeId }),
+  });
 }

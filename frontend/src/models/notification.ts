@@ -6,10 +6,4 @@ export interface NotificationResponseDto {
   createdAt: string;
 }
 
-export interface PagedResponse<T> {
-  items: T[];
-  totalCount: number;
-  pageNumber: number;
-  pageSize: number;
-  totalPages: number;
-}
+export type { PagedResponse } from './common';

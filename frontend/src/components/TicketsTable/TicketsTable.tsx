@@ -1,8 +1,8 @@
 import { useState, useEffect, useRef } from 'react'
 import { useOutletContext } from 'react-router-dom'
-import type { Ticket, PagedResponse } from '../../models/ticket'
+import type { Ticket } from '../../models/ticket'
 import type { OutletContextType } from '../Layout/Layout'
-import { apiFetch } from '../../api/client'
+import { getTickets } from '../../api/client'
 import StatusBadge from '../StatusBadge/StatusBadge'
 import { formatShortName } from '../../utils/nameFormatters'
 import styles from './TicketsTable.module.css'
@@ -29,7 +29,7 @@ const TicketsTable: React.FC = () => {
 
     const fetchTickets = async () => {
       try {
-        const data = await apiFetch<PagedResponse<Ticket>>(`/api/Tickets?pageNumber=${pageNumber}`)
+        const data = await getTickets(pageNumber)
         if (cancelled) return
         setTickets(data.items)
         onTotalPagesChange(data.totalPages)
