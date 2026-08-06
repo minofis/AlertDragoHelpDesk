@@ -10,6 +10,8 @@ namespace DragoDeskHelp.Core.DTOs
 
         public bool IsRead { get; set; }
 
+        public int? RelatedTicketId { get; set; }
+
         public string CreatedAt { get; set; } = string.Empty;
     }
 }

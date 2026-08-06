@@ -47,6 +47,7 @@ namespace DragoDeskHelp.BLL.Services
                 UserId = n.UserId,
                 Message = n.Message,
                 IsRead = n.IsRead,
+                RelatedTicketId = n.RelatedTicketId,
                 CreatedAt = TimeZoneInfo.ConvertTimeFromUtc(n.CreatedAt, kyivTimeZone)
                     .ToString("dd.MM.yyyy HH:mm")
             });
