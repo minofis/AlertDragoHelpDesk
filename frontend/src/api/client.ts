@@ -1,4 +1,4 @@
-import type { NotificationResponseDto } from '../models/notification';
+import type { NotificationResponseDto, PagedResponse } from '../models/notification';
 
 const BASE_URL = import.meta.env.VITE_API_URL ?? '';
 
@@ -28,14 +28,35 @@ export async function apiFetch<T = unknown>(
     throw new Error(errorData.message ?? `Request failed with status ${response.status}`);
   }
 
+  if (response.status === 204) {
+    return undefined as T;
+  }
+
   return response.json() as Promise<T>;
 }
 
-export async function getNotifications(unreadOnly: boolean = false): Promise<NotificationResponseDto[]> {
-  const query = unreadOnly ? '?unreadOnly=true' : '';
-  return apiFetch<NotificationResponseDto[]>(`/api/notifications${query}`);
+export async function getUnreadNotificationCount(): Promise<{ count: number }> {
+  return apiFetch<{ count: number }>('/api/notifications/unread-count');
+}
+
+export async function getNotifications(
+  pageNumber: number,
+  pageSize: number,
+  unreadOnly: boolean
+): Promise<PagedResponse<NotificationResponseDto>> {
+  const params = new URLSearchParams();
+  params.set('pageNumber', String(pageNumber));
+  params.set('pageSize', String(pageSize));
+  if (unreadOnly) {
+    params.set('unreadOnly', 'true');
+  }
+  return apiFetch<PagedResponse<NotificationResponseDto>>(`/api/notifications?${params.toString()}`);
 }
 
 export async function markNotificationAsRead(id: string): Promise<void> {
   await apiFetch(`/api/notifications/${id}/read`, { method: 'PATCH' });
+}
+
+export async function clearReadNotifications(): Promise<void> {
+  await apiFetch('/api/notifications', { method: 'DELETE' });
 }
