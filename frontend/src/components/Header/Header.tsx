@@ -2,12 +2,11 @@ import UserMenu from '../UserMenu/UserMenu';
 import styles from './Header.module.css';
 
 interface HeaderProps {
-  onCreateClick: () => void;
   unreadCount: number;
   onNotificationsClick: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ onCreateClick, unreadCount, onNotificationsClick }) => {
+const Header: React.FC<HeaderProps> = ({ unreadCount, onNotificationsClick }) => {
   return (
     <header className={styles.header}>
       <h1 className={styles.title}>ADHD</h1>
@@ -20,9 +19,6 @@ const Header: React.FC<HeaderProps> = ({ onCreateClick, unreadCount, onNotificat
           {unreadCount > 0 && (
             <span className={styles.badge}>{unreadCount > 99 ? '99+' : unreadCount}</span>
           )}
-        </button>
-        <button className={styles.createButton} onClick={onCreateClick} type="button">
-          Подати заявку
         </button>
         <UserMenu />
       </div>

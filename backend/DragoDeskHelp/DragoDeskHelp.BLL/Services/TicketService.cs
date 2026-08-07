@@ -72,6 +72,52 @@ namespace DragoDeskHelp.BLL.Services
             };
         }
 
+        public async Task<PagedResponse<TicketResponseDto>> GetTicketsByAuthorAsync(Guid authorId, int pageNumber = 1, int pageSize = 10)
+        {
+            var query = _context.Tickets
+                .Include(t => t.Author)
+                .Where(t => t.AuthorId == authorId);
+
+            var totalCount = await query.CountAsync();
+
+            var rawTickets = await query
+                .OrderByDescending(t => t.CreatedAt)
+                .Skip((pageNumber - 1) * pageSize)
+                .Take(pageSize)
+                .ToListAsync();
+
+            var kyivTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Europe/Kyiv");
+
+            var items = rawTickets.Select(t => {
+                var localTime = TimeZoneInfo.ConvertTimeFromUtc(t.CreatedAt, kyivTimeZone);
+                return new TicketResponseDto
+                {
+                    Id = t.Id,
+                    RoomNumber = t.RoomNumber,
+                    AuthorName = t.Author.Name,
+                    Description = t.Description,
+                    StatusText = t.Status switch 
+                    {
+                        TicketStatus.New => "Нова",
+                        TicketStatus.InProgress => "В роботі",
+                        TicketStatus.Resolved => "Виконано",
+                        TicketStatus.Rejected => "Відхилено",
+                        _ => "Невідомо"
+                    },
+                    CreatedAt = localTime.ToString("dd.MM.yyyy HH:mm"),
+                    AssigneeId = t.AssigneeTelegramId 
+                };
+            });
+
+            return new PagedResponse<TicketResponseDto>
+            {
+                Items = items,
+                TotalCount = totalCount,
+                PageNumber = pageNumber,
+                PageSize = pageSize
+            };
+        }
+
         public async Task<string> CreateTicketAsync(TicketRequestDto ticketDto, Guid authorId)
         {
             var user = await _context.Users.FindAsync(authorId);

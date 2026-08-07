@@ -7,6 +7,8 @@ namespace DragoDeskHelp.Core.Interfaces
     {
         Task<PagedResponse<TicketResponseDto>> GetTicketsAsync(TicketStatus? status = null, string? assigneeId = null, int pageNumber = 1, int pageSize = 10);
 
+        Task<PagedResponse<TicketResponseDto>> GetTicketsByAuthorAsync(Guid authorId, int pageNumber = 1, int pageSize = 10);
+
         Task<TicketResponseDto?> GetTicketByIdAsync(int id);
 
         Task<string> CreateTicketAsync(TicketRequestDto ticketDto, Guid authorId);

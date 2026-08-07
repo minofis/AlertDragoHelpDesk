@@ -2,7 +2,8 @@ import { useState, useEffect, useRef } from 'react'
 import { useOutletContext } from 'react-router-dom'
 import type { Ticket } from '../../models/ticket'
 import type { OutletContextType } from '../Layout/Layout'
-import { getTickets } from '../../api/client'
+import { useAuth } from '../../context/AuthContext'
+import { getAllTickets, getMyTickets } from '../../api/client'
 import StatusBadge from '../StatusBadge/StatusBadge'
 import { formatShortName } from '../../utils/nameFormatters'
 import styles from './TicketsTable.module.css'
@@ -18,7 +19,11 @@ const TicketsTable: React.FC = () => {
     onNextPage,
     onRowClick,
     onTicketsLoaded,
+    onCreateClick,
   } = useOutletContext<OutletContextType>()
+
+  const { user } = useAuth()
+  const isAdmin = user?.role === 'Admin'
 
   const [tickets, setTickets] = useState<Ticket[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -29,7 +34,9 @@ const TicketsTable: React.FC = () => {
 
     const fetchTickets = async () => {
       try {
-        const data = await getTickets(pageNumber)
+        const data = isAdmin
+          ? await getAllTickets(pageNumber)
+          : await getMyTickets(pageNumber)
         if (cancelled) return
         setTickets(data.items)
         onTotalPagesChange(data.totalPages)
@@ -53,7 +60,7 @@ const TicketsTable: React.FC = () => {
     return () => {
       cancelled = true
     }
-  }, [refreshKey, pageNumber])
+  }, [refreshKey, pageNumber, isAdmin])
 
   const tableBody = (() => {
     if (isLoading) {
@@ -84,7 +91,14 @@ const TicketsTable: React.FC = () => {
 
   return (
     <>
-      <h2 className={styles.title}>Усі заявки</h2>
+      <div className={styles.headerRow}>
+        <h2 className={styles.title}>{isAdmin ? 'Усі заявки' : 'Мої заявки'}</h2>
+        {!isAdmin && (
+          <button className={styles.createButton} onClick={onCreateClick} type="button">
+            Подати заявку
+          </button>
+        )}
+      </div>
       <div className={styles.wrapper}>
         <div className={styles.tableScrollWrapper}>
         <table className={styles.table}>
