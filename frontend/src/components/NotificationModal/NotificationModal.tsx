@@ -10,9 +10,10 @@ interface NotificationModalProps {
   onClose: () => void;
   onCountChange: () => void;
   pollingSignal?: number;
+  onTicketClick?: (ticketId: number) => void;
 }
 
-const NotificationModal: React.FC<NotificationModalProps> = ({ onClose, onCountChange, pollingSignal }) => {
+const NotificationModal: React.FC<NotificationModalProps> = ({ onClose, onCountChange, pollingSignal, onTicketClick }) => {
   const [items, setItems] = useState<NotificationResponseDto[]>([]);
   const [pageNumber, setPageNumber] = useState(1);
   const [hasMore, setHasMore] = useState(true);
@@ -212,7 +213,22 @@ const NotificationModal: React.FC<NotificationModalProps> = ({ onClose, onCountC
           {items.map((n) => (
             <div
               key={n.id}
-              className={`${styles.item} ${!n.isRead ? styles.itemUnread : ''}`}
+              className={`${styles.item} ${!n.isRead ? styles.itemUnread : ''} ${n.relatedTicketId != null ? styles.itemClickable : ''}`}
+              onClick={async () => {
+                if (n.relatedTicketId != null && onTicketClick) {
+                  if (!n.isRead) {
+                    try {
+                      await markNotificationAsRead(n.id);
+                    } catch {}
+                    setItems((prev) =>
+                      prev.map((x) => (x.id === n.id ? { ...x, isRead: true } : x))
+                    );
+                  }
+                  onTicketClick(n.relatedTicketId);
+                  onClose();
+                  onCountChange();
+                }
+              }}
             >
               <div className={styles.itemContent}>
                 <p className={styles.message}>{n.message}</p>

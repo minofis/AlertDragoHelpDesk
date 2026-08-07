@@ -10,7 +10,10 @@ const Toast: React.FC<ToastProps> = ({ toast }) => {
 
   return (
     <div
-      className={`${styles.toast} ${toast.type === 'success' ? styles.toastSuccess : styles.toastError} ${toast.exiting ? styles.toastExit : ''}`}
+      className={`${styles.toast} ${toast.type === 'success' ? styles.toastSuccess : styles.toastError} ${toast.exiting ? styles.toastExit : ''} ${toast.onClick ? styles.toastClickable : ''}`}
+      onClick={toast.onClick}
+      role={toast.onClick ? 'button' : undefined}
+      tabIndex={toast.onClick ? 0 : undefined}
     >
       {toast.message}
     </div>

@@ -14,6 +14,8 @@ namespace DragoDeskHelp.Core.Entities
 
         public bool IsRead { get; set; } = false;
 
+        public int? RelatedTicketId { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

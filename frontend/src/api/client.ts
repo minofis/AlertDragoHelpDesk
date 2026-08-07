@@ -66,6 +66,10 @@ export async function getTickets(pageNumber: number): Promise<PagedResponse<Tick
   return apiFetch<PagedResponse<Ticket>>(`/api/Tickets?pageNumber=${pageNumber}`);
 }
 
+export async function getTicketById(id: number): Promise<Ticket> {
+  return apiFetch<Ticket>(`/api/tickets/${id}`);
+}
+
 export async function createTicket(ticketData: { roomNumber: string; description: string }): Promise<{ id: number }> {
   return apiFetch<{ id: number }>('/api/tickets', {
     method: 'POST',

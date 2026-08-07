@@ -1,10 +1,11 @@
-import { useState, useEffect, useMemo, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { Outlet } from 'react-router-dom'
 import type { Ticket } from '../../models/ticket'
 import { useAuth } from '../../context/AuthContext'
 import { useToast } from '../../hooks/useToast'
 import { useSmartPolling } from '../../hooks/useSmartPolling'
-import { getUnreadNotificationCount } from '../../api/client'
+import { getUnreadNotificationCount, getNotifications, markNotificationAsRead } from '../../api/client'
+import type { NotificationResponseDto } from '../../models/notification'
 import Header from '../Header/Header'
 import BaseModal from '../BaseModal/BaseModal'
 import CreateTicketForm from '../CreateTicketForm/CreateTicketForm'
@@ -31,12 +32,13 @@ function Layout() {
   const [pageNumber, setPageNumber] = useState(1)
   const [totalPages, setTotalPages] = useState(1)
   const [selectedTicketId, setSelectedTicketId] = useState<number | null>(null)
-  const [tickets, setTickets] = useState<Ticket[]>([])
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
   const [isNotificationsModalOpen, setIsNotificationsModalOpen] = useState(false)
   const [unreadCount, setUnreadCount] = useState(0)
   const [pollingSignal, setPollingSignal] = useState(0)
   const prevUnreadCountRef = useRef(0)
+  const seenNotificationIds = useRef<Set<string>>(new Set())
+  const initialPollDoneRef = useRef(false)
   const { toast, showToast } = useToast()
   const { user } = useAuth()
 
@@ -47,6 +49,46 @@ function Layout() {
       const data = await getUnreadNotificationCount()
       if (data.count > prevUnreadCountRef.current) {
         setPollingSignal((prev) => prev + 1)
+
+        const unreadPage = await getNotifications(1, 20, true)
+
+        if (!initialPollDoneRef.current) {
+          unreadPage.items.forEach((n: NotificationResponseDto) => seenNotificationIds.current.add(n.id))
+          initialPollDoneRef.current = true
+        } else {
+          const newNotifications = unreadPage.items.filter(
+            (n: NotificationResponseDto) => !seenNotificationIds.current.has(n.id)
+          )
+
+          if (newNotifications.length > 0) {
+            newNotifications.forEach((n: NotificationResponseDto) => seenNotificationIds.current.add(n.id))
+
+            new Audio('/notify.mp3').play().catch((e: unknown) => console.warn('Audio blocked', e))
+
+            if (newNotifications.length === 1) {
+              const n = newNotifications[0]
+              if (n.relatedTicketId !== null) {
+                showToast(n.message, 'success', async () => {
+                  try {
+                    await markNotificationAsRead(n.id)
+                    const { count } = await getUnreadNotificationCount()
+                    prevUnreadCountRef.current = count
+                    setUnreadCount(count)
+                  } catch {
+                    /* silently ignore */
+                  }
+                  setSelectedTicketId(n.relatedTicketId!)
+                })
+              } else {
+                showToast(n.message, 'success')
+              }
+            } else {
+              showToast(`У вас ${newNotifications.length} нових сповіщень`, 'success')
+            }
+          }
+        }
+      } else if (!initialPollDoneRef.current) {
+        initialPollDoneRef.current = true
       }
       prevUnreadCountRef.current = data.count
       setUnreadCount(data.count)
@@ -70,11 +112,6 @@ function Layout() {
     return () => clearTimeout(timer)
   }, [highlightedTicketId])
 
-  const activeTicket = useMemo(
-    () => (selectedTicketId !== null ? (tickets.find((t) => t.id === selectedTicketId) ?? null) : null),
-    [selectedTicketId, tickets]
-  )
-
   const handlePrevPage = () => {
     setPageNumber((prev) => Math.max(prev - 1, 1))
   }
@@ -96,7 +133,7 @@ function Layout() {
     onPrevPage: handlePrevPage,
     onNextPage: handleNextPage,
     onRowClick: (ticket: Ticket) => setSelectedTicketId(ticket.id),
-    onTicketsLoaded: setTickets,
+    onTicketsLoaded: () => {},
   }
 
   return (
@@ -125,9 +162,9 @@ function Layout() {
           />
         </BaseModal>
       )}
-      {activeTicket !== null && (
+      {selectedTicketId !== null && (
         <TicketDetailsModal
-          ticket={activeTicket}
+          ticketId={selectedTicketId}
           onClose={() => setSelectedTicketId(null)}
           showToast={showToast}
           onRefreshNeeded={() => setRefreshKey((key) => key + 1)}
@@ -141,6 +178,10 @@ function Layout() {
           }}
           onCountChange={fetchUnreadCount}
           pollingSignal={pollingSignal}
+          onTicketClick={(ticketId: number) => {
+            setIsNotificationsModalOpen(false)
+            setSelectedTicketId(ticketId)
+          }}
         />
       )}
       <Toast toast={toast} />

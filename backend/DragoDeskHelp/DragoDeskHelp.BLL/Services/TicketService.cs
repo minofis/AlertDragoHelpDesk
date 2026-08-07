@@ -134,6 +134,7 @@ namespace DragoDeskHelp.BLL.Services
             {
                 UserId = ticket.AuthorId.ToString(),
                 Message = $"Статус вашої заявки №{id} змінено на '{statusText}'",
+                RelatedTicketId = ticket.Id,
                 CreatedAt = DateTime.UtcNow
             };
 

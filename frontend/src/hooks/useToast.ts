@@ -4,6 +4,7 @@ export interface ToastState {
   message: string
   type: 'success' | 'error'
   exiting: boolean
+  onClick?: () => void
 }
 
 export function useToast() {
@@ -11,11 +12,11 @@ export function useToast() {
   const toastTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const exitTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  const showToast = useCallback((message: string, type: 'success' | 'error') => {
+  const showToast = useCallback((message: string, type: 'success' | 'error', onClick?: () => void) => {
     if (toastTimerRef.current) clearTimeout(toastTimerRef.current)
     if (exitTimerRef.current) clearTimeout(exitTimerRef.current)
 
-    setToast({ message, type, exiting: false })
+    setToast({ message, type, exiting: false, onClick })
 
     toastTimerRef.current = setTimeout(() => {
       setToast((prev) => (prev ? { ...prev, exiting: true } : null))
