@@ -3,6 +3,7 @@ export interface NotificationResponseDto {
   userId: string;
   message: string;
   isRead: boolean;
+  relatedTicketId: number | null;
   createdAt: string;
 }
 

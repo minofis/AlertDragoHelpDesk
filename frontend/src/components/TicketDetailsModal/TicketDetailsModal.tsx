@@ -1,31 +1,60 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import type { Ticket } from '../../models/ticket'
 import { useAuth } from '../../context/AuthContext'
-import { updateTicketStatus } from '../../api/client'
+import { updateTicketStatus, getTicketById } from '../../api/client'
 import BaseModal from '../BaseModal/BaseModal'
 import StatusBadge from '../StatusBadge/StatusBadge'
 import { reorderFullName } from '../../utils/nameFormatters'
 import styles from './TicketDetailsModal.module.css'
 
 interface TicketDetailsModalProps {
-  ticket: Ticket
+  ticketId: number
   onClose: () => void
   showToast: (message: string, type: 'success' | 'error') => void
   onRefreshNeeded: () => void
 }
 
 const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
-  ticket,
+  ticketId,
   onClose,
   showToast,
   onRefreshNeeded,
 }) => {
   const { user } = useAuth()
+  const [ticket, setTicket] = useState<Ticket | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  useEffect(() => {
+    let cancelled = false
+
+    setIsLoading(true)
+    setError(null)
+
+    getTicketById(ticketId)
+      .then((data) => {
+        if (!cancelled) {
+          setTicket(data)
+          setIsLoading(false)
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setError('Не вдалося завантажити заявку.')
+          setIsLoading(false)
+        }
+      })
+
+    return () => {
+      cancelled = true
+    }
+  }, [ticketId])
 
   const isUserAdmin = user?.role === 'Admin'
 
   const handleStatusUpdate = async (newStatus: number) => {
+    if (!ticket) return
     setIsSubmitting(true)
     try {
       await updateTicketStatus(ticket.id, newStatus, 'System Admin')
@@ -37,6 +66,32 @@ const TicketDetailsModal: React.FC<TicketDetailsModalProps> = ({
     } finally {
       setIsSubmitting(false)
     }
+  }
+
+  if (isLoading) {
+    return (
+      <BaseModal onClose={onClose}>
+        <div className={styles.headerRow}>
+          <h2 className={styles.title}>Заявка #{ticketId}</h2>
+        </div>
+        <div className={styles.content}>
+          <p>Завантаження...</p>
+        </div>
+      </BaseModal>
+    )
+  }
+
+  if (error || !ticket) {
+    return (
+      <BaseModal onClose={onClose}>
+        <div className={styles.headerRow}>
+          <h2 className={styles.title}>Заявка #{ticketId}</h2>
+        </div>
+        <div className={styles.content}>
+          <p>{error ?? 'Заявку не знайдено.'}</p>
+        </div>
+      </BaseModal>
+    )
   }
 
   const isNew = ticket.statusText === 'Нова'

@@ -137,6 +137,10 @@
   border-bottom: none;
 }
 
+.itemClickable {
+  cursor: pointer;
+}
+
 .itemUnread {
   background-color: #f5f9ff;
   border-radius: 4px;
