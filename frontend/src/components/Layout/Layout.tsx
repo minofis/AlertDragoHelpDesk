@@ -24,6 +24,7 @@ export interface OutletContextType {
   onNextPage: () => void
   onRowClick: (ticket: Ticket) => void
   onTicketsLoaded: (tickets: Ticket[]) => void
+  onCreateClick: () => void
 }
 
 function Layout() {
@@ -134,12 +135,12 @@ function Layout() {
     onNextPage: handleNextPage,
     onRowClick: (ticket: Ticket) => setSelectedTicketId(ticket.id),
     onTicketsLoaded: () => {},
+    onCreateClick: handleCreateClick,
   }
 
   return (
     <div className={styles.layout}>
       <Header
-        onCreateClick={handleCreateClick}
         unreadCount={unreadCount}
         onNotificationsClick={() => setIsNotificationsModalOpen(true)}
       />

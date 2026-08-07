@@ -20,6 +20,7 @@ namespace DragoDeskHelp.API.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<PagedResponse<TicketResponseDto>>> GetTickets(
             [FromQuery] TicketStatus? status, 
             [FromQuery] string? assigneeId,
@@ -27,6 +28,19 @@ namespace DragoDeskHelp.API.Controllers
             [FromQuery] int pageSize = 10)
         {
             var response = await _ticketService.GetTicketsAsync(status, assigneeId, pageNumber, pageSize);
+            return Ok(response);
+        }
+
+        [HttpGet("my")]
+        public async Task<ActionResult<PagedResponse<TicketResponseDto>>> GetMyTickets(
+            [FromQuery] int pageNumber = 1,
+            [FromQuery] int pageSize = 10)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (string.IsNullOrEmpty(userIdClaim) || !Guid.TryParse(userIdClaim, out var userId))
+                return Unauthorized();
+
+            var response = await _ticketService.GetTicketsByAuthorAsync(userId, pageNumber, pageSize);
             return Ok(response);
         }
 

@@ -62,8 +62,12 @@ export async function clearReadNotifications(): Promise<void> {
   await apiFetch('/api/notifications', { method: 'DELETE' });
 }
 
-export async function getTickets(pageNumber: number): Promise<PagedResponse<Ticket>> {
-  return apiFetch<PagedResponse<Ticket>>(`/api/Tickets?pageNumber=${pageNumber}`);
+export async function getAllTickets(pageNumber: number, pageSize: number = 10): Promise<PagedResponse<Ticket>> {
+  return apiFetch<PagedResponse<Ticket>>(`/api/Tickets?pageNumber=${pageNumber}&pageSize=${pageSize}`);
+}
+
+export async function getMyTickets(pageNumber: number, pageSize: number = 10): Promise<PagedResponse<Ticket>> {
+  return apiFetch<PagedResponse<Ticket>>(`/api/Tickets/my?pageNumber=${pageNumber}&pageSize=${pageSize}`);
 }
 
 export async function getTicketById(id: number): Promise<Ticket> {
